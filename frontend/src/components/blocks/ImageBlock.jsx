@@ -5,10 +5,10 @@ function ImageBlock({ block }) {
       <img
         src={block.url}
         alt={block.alt || ''}
-        className="w-full rounded-xl border border-slate-200 dark:border-white/10"
+        className="w-full rounded-xl border border-slate-200"
       />
       {block.alt && (
-        <figcaption className="mt-1.5 text-center text-xs text-slate-400 dark:text-slate-500">
+        <figcaption className="mt-1.5 text-center text-xs text-slate-400">
           {block.alt}
         </figcaption>
       )}

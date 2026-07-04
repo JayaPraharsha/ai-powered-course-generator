@@ -55,7 +55,7 @@ function PromptForm({ onGenerated }) {
           onChange={(e) => setTopic(e.target.value)}
           placeholder="e.g. Intro to React Hooks"
           disabled={status === 'loading'}
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:ring-primary-900"
+          className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
         />
         <button
           type="submit"
@@ -69,7 +69,7 @@ function PromptForm({ onGenerated }) {
       <button
         type="button"
         onClick={() => setShowAdvanced((v) => !v)}
-        className="mt-3 text-xs font-medium text-slate-400 underline-offset-2 hover:text-primary-600 hover:underline dark:text-slate-500 dark:hover:text-primary-400"
+        className="mt-3 text-xs font-medium text-slate-400 underline-offset-2 hover:text-primary-600 hover:underline"
       >
         {showAdvanced ? 'Hide options' : 'Level, goals, and study time (optional)'}
       </button>
@@ -86,7 +86,7 @@ function PromptForm({ onGenerated }) {
               <select
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400"
               >
                 <option value="">Any level</option>
                 <option value="beginner">Beginner</option>
@@ -98,14 +98,14 @@ function PromptForm({ onGenerated }) {
                 value={goals}
                 onChange={(e) => setGoals(e.target.value)}
                 placeholder="Your goal (optional)"
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400"
               />
               <input
                 type="text"
                 value={studyTime}
                 onChange={(e) => setStudyTime(e.target.value)}
                 placeholder="Study time (optional)"
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400"
               />
             </div>
           </motion.div>
@@ -113,9 +113,9 @@ function PromptForm({ onGenerated }) {
       </AnimatePresence>
 
       {status === 'loading' && (
-        <div className="mt-8 flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400">
+        <div className="mt-8 flex flex-col items-center gap-3 text-slate-500">
           <motion.div
-            className="h-8 w-8 rounded-full border-2 border-primary-200 border-t-primary-600 dark:border-primary-900 dark:border-t-primary-400"
+            className="h-8 w-8 rounded-full border-2 border-primary-200 border-t-primary-600"
             animate={{ rotate: 360 }}
             transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
           />

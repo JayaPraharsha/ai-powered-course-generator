@@ -13,10 +13,10 @@ function Home() {
       initial="hidden"
       animate="visible"
     >
-      <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
-        Text-to-<span className="text-primary-600 dark:text-primary-400">Learn</span>
+      <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        Text-to-<span className="text-primary-600">Learn</span>
       </h1>
-      <p className="mt-3 max-w-md text-slate-500 dark:text-slate-400">
+      <p className="mt-3 max-w-md text-slate-500">
         Describe a topic. A crew of AI agents builds you a full course.
       </p>
 

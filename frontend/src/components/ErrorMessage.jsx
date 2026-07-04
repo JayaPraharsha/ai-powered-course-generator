@@ -1,7 +1,7 @@
 function ErrorMessage({ message, onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-danger-500/20 bg-danger-500/5 px-6 py-10 text-center">
-      <p className="text-sm font-medium text-danger-600 dark:text-red-400">
+      <p className="text-sm font-medium text-danger-600">
         {message || "Something went wrong."}
       </p>
       {onRetry && (

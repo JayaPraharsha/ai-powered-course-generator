@@ -10,10 +10,9 @@ function MermaidDiagram({ code, onError }) {
 
   useEffect(() => {
     if (!initialized) {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
       mermaid.initialize({
         startOnLoad: false,
-        theme: isDark ? 'dark' : 'default',
+        theme: 'default',
         securityLevel: 'strict',
       })
       initialized = true

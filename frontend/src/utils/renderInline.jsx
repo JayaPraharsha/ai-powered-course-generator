@@ -11,7 +11,7 @@ function renderInline(text) {
       return (
         <code
           key={i}
-          className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.85em] dark:bg-white/10"
+          className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.85em]"
         >
           {part.slice(1, -1)}
         </code>
