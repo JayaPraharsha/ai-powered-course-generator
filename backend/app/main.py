@@ -8,9 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.database import close_mongo_connection, connect_to_mongo
+from app.database import close_mongo_connection, connect_to_mongo, ensure_indexes
 from app.logging_config import configure_logging
-from app.routes import courses, health, lessons
+from app.routes import auth, courses, health, lessons
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -19,6 +19,7 @@ logger = logging.getLogger("app")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     connect_to_mongo()
+    await ensure_indexes()
     yield
     close_mongo_connection()
 
@@ -79,6 +80,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(health.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 app.include_router(courses.router, prefix="/api")
 app.include_router(lessons.router, prefix="/api")
 

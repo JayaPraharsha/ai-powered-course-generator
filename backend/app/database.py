@@ -21,3 +21,8 @@ def get_database() -> AsyncIOMotorDatabase:
     if _client is None:
         raise RuntimeError("MongoDB client is not initialized")
     return _client[settings.mongo_db_name]
+
+
+async def ensure_indexes() -> None:
+    db = get_database()
+    await db["users"].create_index("email", unique=True)
