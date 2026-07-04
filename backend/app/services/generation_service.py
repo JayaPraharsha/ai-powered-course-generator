@@ -13,7 +13,7 @@ from app.services import course_service, lesson_service
 logger = logging.getLogger(__name__)
 
 
-async def generate_course(request: CourseGenerateRequest) -> Course:
+async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Course:
     start = time.perf_counter()
     logger.info("Course generation started: topic=%r level=%r", request.topic, request.level)
 
@@ -69,6 +69,7 @@ async def generate_course(request: CourseGenerateRequest) -> Course:
         modules.append(ModuleOutline(id=module_id, title=module_title, lessons=lesson_stubs))
 
     course = Course(
+        owner_id=owner_id,
         title=outline.title,
         description=outline.description,
         tags=outline.tags,

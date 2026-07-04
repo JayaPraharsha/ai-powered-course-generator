@@ -2,7 +2,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 
 from app.database import get_database
-from app.models.lesson import HinglishContent, Lesson, QuizQuestion, VideoRecommendation, VisualAid
+from app.models.lesson import HinglishContent, Lesson, VideoRecommendation, VisualAid
 
 COLLECTION = "lessons"
 
@@ -32,14 +32,6 @@ async def get_lesson(lesson_id: str) -> Lesson | None:
 async def find_lesson_by_stub(course_id: str, module_id: str, lesson_stub_id: str) -> Lesson | None:
     """Lesson stubs (in the Course doc) and full Lesson docs share the same ObjectId."""
     return await get_lesson(lesson_stub_id)
-
-
-async def set_quiz(lesson_id: str, quiz: list[QuizQuestion]) -> None:
-    db = get_database()
-    await db[COLLECTION].update_one(
-        {"_id": ObjectId(lesson_id)},
-        {"$set": {"quiz": [q.model_dump() for q in quiz]}},
-    )
 
 
 async def set_visual_aids(lesson_id: str, aids: list[VisualAid]) -> None:
