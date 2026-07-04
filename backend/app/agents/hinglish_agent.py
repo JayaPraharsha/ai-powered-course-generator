@@ -10,7 +10,7 @@ from google.genai import types
 from pydantic import BaseModel
 
 from app.agents.gemini_client import GEMINI_TTS_MODEL_NAME, client as genai_client, pcm_to_wav_base64
-from app.agents.llm import get_gemini_llm
+from app.agents.llm import get_llm
 from app.models.lesson import HinglishContent, Lesson
 
 
@@ -30,7 +30,7 @@ def build_hinglish_agent() -> Agent:
             "students actually talk — a natural mix of Hindi and English, never a "
             "stiff, literal translation."
         ),
-        llm=get_gemini_llm(temperature=0.6),
+        llm=get_llm(temperature=0.6),
         verbose=False,
     )
 

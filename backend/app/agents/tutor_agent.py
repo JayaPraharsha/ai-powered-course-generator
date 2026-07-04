@@ -1,6 +1,6 @@
 from crewai import Agent, Crew, Task
 
-from app.agents.llm import get_gemini_llm
+from app.agents.llm import get_llm
 from app.models.lesson import Lesson
 
 
@@ -14,7 +14,7 @@ def build_tutor_agent() -> Agent:
             "source, add clarifying examples when helpful, and simplify difficult concepts "
             "without being condescending."
         ),
-        llm=get_gemini_llm(temperature=0.6),
+        llm=get_llm(temperature=0.6),
         verbose=False,
     )
 

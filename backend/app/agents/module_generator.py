@@ -2,7 +2,7 @@ import asyncio
 
 from crewai import Agent, Crew, Task
 
-from app.agents.llm import get_gemini_llm
+from app.agents.llm import get_llm
 from app.agents.schemas import ModuleLessonsSchema
 
 
@@ -15,7 +15,7 @@ def build_module_generator_agent() -> Agent:
             "explanations, real examples, exercises, and key takeaways. You only include a "
             "code block when the module topic genuinely involves code."
         ),
-        llm=get_gemini_llm(temperature=0.7),
+        llm=get_llm(temperature=0.7),
         verbose=False,
     )
 

@@ -1,6 +1,6 @@
 from crewai import Agent, Crew, Task
 
-from app.agents.llm import get_gemini_llm
+from app.agents.llm import get_llm
 from app.agents.schemas import CourseOutlineSchema
 from app.models.course import CourseGenerateRequest
 
@@ -14,7 +14,7 @@ def build_course_planner_agent() -> Agent:
             "path, moving from foundational to advanced concepts, tailored to the "
             "learner's stated level, goals, and available time."
         ),
-        llm=get_gemini_llm(temperature=0.6),
+        llm=get_llm(temperature=0.6),
         verbose=False,
     )
 

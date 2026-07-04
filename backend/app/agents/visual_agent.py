@@ -1,6 +1,6 @@
 from crewai import Agent, Crew, Task
 
-from app.agents.llm import get_gemini_llm
+from app.agents.llm import get_llm
 from app.agents.schemas import VisualAidsSchema
 from app.models.lesson import Lesson, VisualAid
 
@@ -14,7 +14,7 @@ def build_visual_agent() -> Agent:
             "and diagrams using Mermaid syntax, choosing whichever diagram type best fits "
             "the material."
         ),
-        llm=get_gemini_llm(temperature=0.5),
+        llm=get_llm(temperature=0.5),
         verbose=False,
     )
 
