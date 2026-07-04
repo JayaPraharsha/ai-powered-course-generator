@@ -25,28 +25,41 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Text-to-Learn API", lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+class LogRequestsMiddleware:
+    """Pure ASGI middleware — avoids BaseHTTPMiddleware's anyio task-group wrapping,
+    which can corrupt the response stream when a downstream route errors out and
+    turns a clean 500 into a broken connection (browser sees "Failed to fetch")."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        start = time.perf_counter()
+        status_code = 0
+
+        async def send_wrapper(message):
+            nonlocal status_code
+            if message["type"] == "http.response.start":
+                status_code = message["status"]
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+        duration_ms = (time.perf_counter() - start) * 1000
+        logger.info(
+            "%s %s -> %s (%.0fms)",
+            scope["method"],
+            scope["path"],
+            status_code,
+            duration_ms,
+        )
 
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start = time.perf_counter()
-    response = await call_next(request)
-    duration_ms = (time.perf_counter() - start) * 1000
-    logger.info(
-        "%s %s -> %s (%.0fms)",
-        request.method,
-        request.url.path,
-        response.status_code,
-        duration_ms,
-    )
-    return response
+app.add_middleware(LogRequestsMiddleware)
 
 
 @app.exception_handler(RequestValidationError)
@@ -68,3 +81,17 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 app.include_router(health.router, prefix="/api")
 app.include_router(courses.router, prefix="/api")
 app.include_router(lessons.router, prefix="/api")
+
+# Starlette always places the generic-Exception handler inside ServerErrorMiddleware,
+# which it puts outermost no matter when add_middleware(CORSMiddleware) is called —
+# so unhandled-exception 500s never get CORS headers, and the browser reports the
+# response as a network failure ("Failed to fetch") instead of a real 500. Wrapping
+# the finished app object (rather than using add_middleware) puts CORS truly outside
+# ServerErrorMiddleware, so every response — including unhandled 500s — gets headers.
+app = CORSMiddleware(
+    app,
+    allow_origins=settings.cors_origin_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
