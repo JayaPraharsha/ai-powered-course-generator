@@ -1,9 +1,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const TOKEN_KEY = 'ttl_token'
+
+let authToken = localStorage.getItem(TOKEN_KEY)
+
+export function setAuthToken(token) {
+  authToken = token
+  if (token) localStorage.setItem(TOKEN_KEY, token)
+  else localStorage.removeItem(TOKEN_KEY)
+}
+
+export function getAuthToken() {
+  return authToken
+}
 
 async function request(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...options.headers }
+  if (authToken) headers.Authorization = `Bearer ${authToken}`
+
   const res = await fetch(`${API_BASE_URL}/api${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   })
   if (!res.ok) {
     const body = await res.json().catch(() => null)
@@ -17,6 +33,15 @@ async function request(path, options = {}) {
   }
   return res.status === 204 ? null : res.json()
 }
+
+// Auth
+export const signup = (payload) =>
+  request('/auth/signup', { method: 'POST', body: JSON.stringify(payload) })
+
+export const login = (payload) =>
+  request('/auth/login', { method: 'POST', body: JSON.stringify(payload) })
+
+export const getMe = () => request('/auth/me')
 
 // Courses
 export const generateCourse = (payload) =>
