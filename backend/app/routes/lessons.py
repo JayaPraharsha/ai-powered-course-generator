@@ -4,8 +4,14 @@ from pydantic import BaseModel
 from app.agents import hinglish_agent, tutor_agent, video_agent, visual_agent
 from app.agents.retry import with_retries
 from app.dependencies import get_current_user
-from app.models.user import User
-from app.services import course_service, enrichment_service, lesson_service, video_note_service
+from app.models.user import User, level_progress
+from app.services import (
+    course_service,
+    enrichment_service,
+    lesson_service,
+    user_service,
+    video_note_service,
+)
 
 router = APIRouter(prefix="/lessons", tags=["lessons"])
 
@@ -87,10 +93,31 @@ async def set_lesson_completed(
     lesson_id: str, body: LessonCompletion, current_user: User = Depends(get_current_user)
 ):
     lesson = await _require_lesson(lesson_id, current_user)
-    completed_lesson_ids = await course_service.set_lesson_completed(
+    completed_lesson_ids, changed = await course_service.set_lesson_completed(
         lesson.course_id, lesson_id, body.completed
     )
-    return {"completed_lesson_ids": completed_lesson_ids}
+
+    result = {"completed_lesson_ids": completed_lesson_ids}
+    if changed:
+        sign = 1 if body.completed else -1
+        before = level_progress(current_user.xp)
+        rewarded_user = await user_service.award_rewards(
+            current_user.id,
+            sign * user_service.LESSON_COMPLETE_XP,
+            sign * user_service.LESSON_COMPLETE_GOLD,
+        )
+        after = level_progress(rewarded_user.xp)
+        result.update(
+            {
+                "xp_awarded": sign * user_service.LESSON_COMPLETE_XP,
+                "gold_awarded": sign * user_service.LESSON_COMPLETE_GOLD,
+                "xp_total": rewarded_user.xp,
+                "gold_total": rewarded_user.gold,
+                **after,
+                "leveled_up": body.completed and after["level"] > before["level"],
+            }
+        )
+    return result
 
 
 @router.post("/{lesson_id}/hinglish")

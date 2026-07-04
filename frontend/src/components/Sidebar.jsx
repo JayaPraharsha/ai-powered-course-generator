@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
-import { LayoutDashboard, PlusCircle } from 'lucide-react'
+import { LayoutDashboard, PanelLeftClose, PanelLeftOpen, PlusCircle } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 
 const navItems = [
@@ -8,7 +8,7 @@ const navItems = [
 ]
 
 function Sidebar() {
-  const { sidebarCollapsed } = useUI()
+  const { sidebarCollapsed, setSidebarCollapsed } = useUI()
 
   return (
     <aside
@@ -16,14 +16,29 @@ function Sidebar() {
         sidebarCollapsed ? 'w-16 px-2' : 'w-64 px-5'
       }`}
     >
-      <Link to="/" className={`flex items-center gap-2 px-1 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-glow">
-          L
-        </span>
-        {!sidebarCollapsed && (
-          <span className="font-display text-lg font-semibold text-slate-900">Learnify AI</span>
-        )}
-      </Link>
+      <div className={`flex items-center px-1 ${sidebarCollapsed ? 'flex-col gap-3' : 'justify-between'}`}>
+        <Link to="/" className={`flex items-center gap-2 ${sidebarCollapsed ? 'justify-center' : ''}`}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-glow">
+            L
+          </span>
+          {!sidebarCollapsed && (
+            <span className="font-display text-lg font-semibold text-slate-900">Learnify AI</span>
+          )}
+        </Link>
+        <button
+          type="button"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {sidebarCollapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
+        </button>
+      </div>
 
       <nav className="mt-8 flex flex-col gap-1">
         {navItems.map(({ to, label, icon: Icon, end }) => (

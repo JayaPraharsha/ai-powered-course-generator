@@ -24,6 +24,12 @@ function CourseCard({ course }) {
             showImage ? '' : `bg-gradient-to-br ${gradient}`
           }`}
         >
+          {!showImage && (
+            <div
+              aria-hidden
+              className="absolute inset-0 opacity-20 [background-image:radial-gradient(white_1.5px,transparent_1.5px)] [background-size:16px_16px]"
+            />
+          )}
           {showImage ? (
             <img
               src={course.cover_image_url}

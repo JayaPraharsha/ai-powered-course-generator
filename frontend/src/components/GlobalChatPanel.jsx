@@ -1,8 +1,10 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, Send, X } from 'lucide-react'
+import { MessageCircle, Send, Sparkles, X } from 'lucide-react'
 import { askGeneralChat } from '../utils/api'
 import { useUI } from '../context/UIContext'
+
+const EXAMPLE_PROMPTS = ['Explain recursion simply', "What's a REST API?", 'Tips to study faster']
 
 function GlobalChatPanel() {
   const { chatOpen, setChatOpen } = useUI()
@@ -71,9 +73,31 @@ function GlobalChatPanel() {
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
             {messages.length === 0 && (
-              <p className="text-sm text-slate-400">
-                Ask anything — this assistant isn't tied to a specific lesson.
-              </p>
+              <div className="flex flex-col items-center gap-4 pt-6 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-glow">
+                  <Sparkles className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="font-display text-sm font-semibold text-slate-800">
+                    Hey, I'm your Learnify AI assistant
+                  </p>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Stuck on something? Ask me anything, anytime.
+                  </p>
+                </div>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {EXAMPLE_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => setQuestion(prompt)}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
             <div className="flex flex-col gap-3">
               {messages.map((m, i) => (

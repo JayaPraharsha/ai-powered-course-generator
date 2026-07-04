@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Circle, Plus } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, ListChecks, Plus } from 'lucide-react'
 import { listCourses, listQuizzes } from '../utils/api'
 import useFetch from '../hooks/useFetch'
 import ErrorMessage from '../components/ErrorMessage'
@@ -10,8 +10,8 @@ import CourseCard from '../components/CourseCard'
 import { fadeInUp, staggerContainer } from '../utils/motion'
 
 const TABS = [
-  { id: 'courses', label: 'Courses' },
-  { id: 'quizzes', label: 'Quizzes' },
+  { id: 'courses', label: 'Courses', icon: BookOpen },
+  { id: 'quizzes', label: 'Quizzes', icon: ListChecks },
 ]
 
 function QuizzesTab() {
@@ -129,18 +129,19 @@ function CourseList() {
         </Link>
       </div>
 
-      <div className="mt-6 flex gap-1.5 border-b border-slate-200">
-        {TABS.map(({ id, label }) => (
+      <div className="mt-6 inline-flex gap-1 rounded-xl bg-slate-100 p-1">
+        {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             type="button"
             onClick={() => setTab(id)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition ${
               tab === id
-                ? 'border-primary-600 text-primary-700'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'bg-white text-primary-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
+            <Icon className="h-4 w-4" />
             {label}
           </button>
         ))}

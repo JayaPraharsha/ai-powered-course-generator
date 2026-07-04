@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, CircleCheck, Sparkles } from 'lucide-react'
 import { getCourse, getLesson, setLessonCompleted } from '../utils/api'
 import useFetch from '../hooks/useFetch'
+import { useAuth } from '../context/AuthContext'
 import { useForceSidebarCollapsed } from '../context/UIContext'
 import LessonRenderer from '../components/LessonRenderer'
 import VideoPanel from '../components/VideoPanel'
@@ -11,6 +12,7 @@ import HinglishPanel from '../components/HinglishPanel'
 import VisualAidPanel from '../components/VisualAidPanel'
 import AITutorPanel from '../components/AITutorPanel'
 import CourseSidebar from '../components/CourseSidebar'
+import RewardPopup from '../components/RewardPopup'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
 import { fadeInUp } from '../utils/motion'
@@ -34,8 +36,10 @@ function Lesson() {
   const { courseId, lessonId } = useParams()
   const { data: lesson, status, error, reload } = useFetch(() => getLesson(lessonId), [lessonId])
   const { data: course, setData: setCourse } = useFetch(() => getCourse(courseId), [courseId])
+  const { updateUser } = useAuth()
   const [tutorOpen, setTutorOpen] = useState(false)
   const [togglingComplete, setTogglingComplete] = useState(false)
+  const [reward, setReward] = useState(null)
   useForceSidebarCollapsed()
 
   const completed = (course?.completed_lesson_ids ?? []).includes(lessonId)
@@ -45,7 +49,7 @@ function Lesson() {
     const next = !completed
     setTogglingComplete(true)
     try {
-      await setLessonCompleted(lessonId, next)
+      const result = await setLessonCompleted(lessonId, next)
       setCourse((prev) => {
         if (!prev) return prev
         const ids = new Set(prev.completed_lesson_ids ?? [])
@@ -53,6 +57,23 @@ function Lesson() {
         else ids.delete(lessonId)
         return { ...prev, completed_lesson_ids: [...ids] }
       })
+      if (result.xp_total !== undefined) {
+        updateUser({
+          xp: result.xp_total,
+          gold: result.gold_total,
+          level: result.level,
+          xp_into_level: result.xp_into_level,
+          xp_to_next: result.xp_to_next,
+        })
+        if (next) {
+          setReward({
+            xpAwarded: result.xp_awarded,
+            goldAwarded: result.gold_awarded,
+            level: result.level,
+            leveledUp: result.leveled_up,
+          })
+        }
+      }
     } catch {
       // non-critical — leave state unchanged on failure
     } finally {
@@ -135,6 +156,8 @@ function Lesson() {
 
         <AITutorPanel lessonId={lessonId} open={tutorOpen} onClose={() => setTutorOpen(false)} />
       </motion.div>
+
+      <RewardPopup reward={reward} onClose={() => setReward(null)} />
     </div>
   )
 }

@@ -75,8 +75,14 @@ async def mark_lesson_enriched(course_id: str, module_id: str, lesson_id: str) -
     )
 
 
-async def set_lesson_completed(course_id: str, lesson_id: str, completed: bool) -> list[str]:
+async def set_lesson_completed(course_id: str, lesson_id: str, completed: bool) -> tuple[list[str], bool]:
+    """Returns the updated id list plus whether this call actually changed the
+    completion state (vs. a redundant repeat toggle) — callers use `changed`
+    to decide whether to award/claw back rewards exactly once per transition."""
     db = get_database()
+    before = await db[COLLECTION].find_one({"_id": ObjectId(course_id)}, {"completed_lesson_ids": 1})
+    was_completed = lesson_id in (before.get("completed_lesson_ids", []) if before else [])
+
     op = {"$addToSet": {"completed_lesson_ids": lesson_id}} if completed else {
         "$pull": {"completed_lesson_ids": lesson_id}
     }
@@ -85,7 +91,9 @@ async def set_lesson_completed(course_id: str, lesson_id: str, completed: bool) 
         op,
         return_document=ReturnDocument.AFTER,
     )
-    return doc["completed_lesson_ids"] if doc else []
+    ids = doc["completed_lesson_ids"] if doc else []
+    changed = completed != was_completed
+    return ids, changed
 
 
 async def set_module_quiz(course_id: str, module_id: str, quiz: list[QuizQuestion]) -> None:

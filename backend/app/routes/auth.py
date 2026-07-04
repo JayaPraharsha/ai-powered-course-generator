@@ -3,14 +3,21 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import get_current_user
-from app.models.user import User, UserLoginRequest, UserSignupRequest
+from app.models.user import User, UserLoginRequest, UserSignupRequest, level_progress
 from app.services import auth_service, course_service, lesson_service, user_service, video_note_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _public(user: User) -> dict:
-    return {"id": user.id, "name": user.name, "email": user.email}
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "xp": user.xp,
+        "gold": user.gold,
+        **level_progress(user.xp),
+    }
 
 
 @router.post("/signup")
