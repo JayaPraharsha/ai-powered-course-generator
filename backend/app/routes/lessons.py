@@ -4,8 +4,10 @@ from pydantic import BaseModel
 from app.agents import hinglish_agent, tutor_agent, video_agent, visual_agent
 from app.agents.retry import with_retries
 from app.dependencies import get_current_user
+from app.models.activity import ActivityEntry
 from app.models.user import User, level_progress
 from app.services import (
+    activity_service,
     course_service,
     enrichment_service,
     lesson_service,
@@ -29,7 +31,7 @@ async def _require_lesson(lesson_id: str, current_user: User):
 @router.get("/{lesson_id}")
 async def get_lesson(lesson_id: str, current_user: User = Depends(get_current_user)):
     lesson = await _require_lesson(lesson_id, current_user)
-    if not lesson.auto_enriched:
+    if not lesson.auto_enriched or not lesson.videos_enriched:
         lesson = await enrichment_service.auto_enrich_lesson(lesson)
     return lesson
 
@@ -117,6 +119,19 @@ async def set_lesson_completed(
                 "leveled_up": body.completed and after["level"] > before["level"],
             }
         )
+        if body.completed:
+            course = await course_service.get_course(lesson.course_id)
+            await activity_service.log_activity(
+                ActivityEntry(
+                    user_id=current_user.id,
+                    course_id=lesson.course_id,
+                    course_title=course.title if course else "",
+                    lesson_id=lesson_id,
+                    lesson_title=lesson.title,
+                    xp_awarded=sign * user_service.LESSON_COMPLETE_XP,
+                    gold_awarded=sign * user_service.LESSON_COMPLETE_GOLD,
+                )
+            )
     return result
 
 

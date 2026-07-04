@@ -27,7 +27,8 @@
 **LLMs** — OpenAI or Gemini (configurable) for course/lesson generation · Gemini for video discovery & Hinglish narration
 
 **Database** — MongoDB
-
+Email: demo@learnify.ai
+Password: demo1234
 ---
 
 ## 🏛️ Architecture

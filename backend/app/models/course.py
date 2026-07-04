@@ -43,5 +43,7 @@ class Course(BaseModel):
     modules: list[ModuleOutline] = Field(default_factory=list)
     completed_lesson_ids: list[str] = Field(default_factory=list)
     cover_image_url: str | None = None
+    is_platform: bool = False
+    template_id: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

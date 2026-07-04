@@ -3,7 +3,8 @@ import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
+import CreateCourse from './pages/CreateCourse'
 import CourseList from './pages/CourseList'
 import Course from './pages/Course'
 import Lesson from './pages/Lesson'
@@ -16,7 +17,8 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/create" element={<CreateCourse />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/course/:courseId" element={<Course />} />
           <Route path="/course/:courseId/lesson/:lessonId" element={<Lesson />} />

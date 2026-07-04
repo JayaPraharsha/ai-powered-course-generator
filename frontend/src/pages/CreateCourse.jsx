@@ -1,26 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PromptForm from '../components/PromptForm'
+import PageBackground from '../components/PageBackground'
 import { fadeInUp } from '../utils/motion'
 
-function Home() {
+function CreateCourse() {
   const navigate = useNavigate()
 
   return (
-    <div className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.primary.100),transparent_70%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-24 -left-24 -z-10 h-72 w-72 rounded-full bg-primary-200/40 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-40 -right-24 -z-10 h-72 w-72 rounded-full bg-accent-400/20 blur-3xl"
-      />
-
+    <PageBackground tone="accent">
       <motion.div
         className="mx-auto flex max-w-2xl flex-col items-center px-6 py-20 text-center"
         variants={fadeInUp}
@@ -37,12 +25,12 @@ function Home() {
           Describe a topic. A crew of AI agents builds you a full course.
         </p>
 
-        <div className="mt-10 w-full rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-glow backdrop-blur-sm">
+        <div className="mt-10 w-full rounded-2xl border border-white/60 bg-white/70 p-6 shadow-glow backdrop-blur-md">
           <PromptForm onGenerated={(course) => navigate(`/course/${course._id}`)} />
         </div>
       </motion.div>
-    </div>
+    </PageBackground>
   )
 }
 
-export default Home
+export default CreateCourse

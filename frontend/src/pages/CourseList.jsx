@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { BookOpen, CheckCircle2, Circle, ListChecks, Plus } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, ListChecks, Plus, Search, Sparkles, X } from 'lucide-react'
 import { listCourses, listQuizzes } from '../utils/api'
 import useFetch from '../hooks/useFetch'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
 import CourseCard from '../components/CourseCard'
+import PageBackground from '../components/PageBackground'
+import EmptyStateIllustration from '../components/illustrations/EmptyStateIllustration'
+import NoSearchResultsIllustration from '../components/illustrations/NoSearchResultsIllustration'
 import { fadeInUp, staggerContainer } from '../utils/motion'
 
 const TABS = [
   { id: 'courses', label: 'Courses', icon: BookOpen },
+  { id: 'my-courses', label: 'My Courses', icon: Sparkles },
   { id: 'quizzes', label: 'Quizzes', icon: ListChecks },
 ]
 
@@ -112,16 +116,30 @@ function CardSkeleton() {
 function CourseList() {
   const { data: courses, status, error, reload } = useFetch(() => listCourses(), [])
   const [tab, setTab] = useState('courses')
+  const [query, setQuery] = useState('')
+
+  const isCourseTab = tab === 'courses' || tab === 'my-courses'
+  const visibleCourses = courses?.filter((c) =>
+    tab === 'courses' ? c.is_platform : c.is_platform === false
+  )
+  const searchedCourses = visibleCourses?.filter((c) => {
+    if (!query.trim()) return true
+    const q = query.trim().toLowerCase()
+    return c.title?.toLowerCase().includes(q) || c.tags?.some((t) => t.toLowerCase().includes(q))
+  })
+  const hasQuery = query.trim() !== ''
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <PageBackground className="mx-auto max-w-6xl px-6 py-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-500">Your generated courses, all in one place.</p>
+          <h1 className="font-display text-2xl font-bold text-slate-900">Courses</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Platform courses and everything you've generated, all in one place.
+          </p>
         </div>
         <Link
-          to="/"
+          to="/create"
           className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-500"
         >
           <Plus className="h-4 w-4" />
@@ -147,9 +165,32 @@ function CourseList() {
         ))}
       </div>
 
+      {isCourseTab && (
+        <div className="relative mt-4 max-w-sm">
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search courses…"
+            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-10 pr-9 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200"
+          />
+          {hasQuery && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {tab === 'quizzes' && <QuizzesTab />}
 
-      {tab === 'courses' && status === 'loading' && (
+      {isCourseTab && status === 'loading' && (
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(3)].map((_, i) => (
             <CardSkeleton key={i} />
@@ -157,43 +198,67 @@ function CourseList() {
         </div>
       )}
 
-      {tab === 'courses' && status === 'error' && (
+      {isCourseTab && status === 'error' && (
         <div className="mt-8">
           <ErrorMessage message={error} onRetry={reload} />
         </div>
       )}
 
-      {tab === 'courses' && status === 'success' && courses.length === 0 && (
+      {isCourseTab && status === 'success' && visibleCourses.length === 0 && (
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
           className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center"
         >
-          <p className="text-slate-500">No courses yet.</p>
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-500"
-          >
-            <Plus className="h-4 w-4" />
-            Generate your first course
-          </Link>
+          <EmptyStateIllustration className="h-32 w-32" />
+          <p className="text-slate-500">
+            {tab === 'my-courses' ? "You haven't generated a course yet." : 'No platform courses yet.'}
+          </p>
+          {tab === 'my-courses' && (
+            <Link
+              to="/create"
+              className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-500"
+            >
+              <Plus className="h-4 w-4" />
+              Generate your first course
+            </Link>
+          )}
         </motion.div>
       )}
 
-      {tab === 'courses' && status === 'success' && courses.length > 0 && (
+      {isCourseTab && status === 'success' && visibleCourses.length > 0 && hasQuery && searchedCourses.length === 0 && (
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center"
+        >
+          <NoSearchResultsIllustration className="h-32 w-32" />
+          <p className="text-slate-500">No results for &ldquo;{query.trim()}&rdquo;</p>
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
+          >
+            Clear search
+          </button>
+        </motion.div>
+      )}
+
+      {isCourseTab && status === 'success' && searchedCourses?.length > 0 && (
         <motion.div
           className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
-          {courses.map((course) => (
+          {searchedCourses.map((course) => (
             <CourseCard key={course._id} course={course} />
           ))}
         </motion.div>
       )}
-    </div>
+    </PageBackground>
   )
 }
 

@@ -51,7 +51,7 @@ function AccountMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 hover:bg-primary-200"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700 hover:bg-primary-200"
         aria-label="Account menu"
       >
         {user.name?.[0]?.toUpperCase() ?? 'U'}

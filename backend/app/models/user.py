@@ -35,6 +35,9 @@ class User(BaseModel):
     password_hash: str
     xp: int = 0
     gold: int = 0
+    current_streak: int = 0
+    longest_streak: int = 0
+    last_active_date: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

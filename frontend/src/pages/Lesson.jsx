@@ -1,7 +1,7 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, CircleCheck, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleCheck, Sparkles } from 'lucide-react'
 import { getCourse, getLesson, setLessonCompleted } from '../utils/api'
 import useFetch from '../hooks/useFetch'
 import { useAuth } from '../context/AuthContext'
@@ -12,10 +12,12 @@ import HinglishPanel from '../components/HinglishPanel'
 import VisualAidPanel from '../components/VisualAidPanel'
 import AITutorPanel from '../components/AITutorPanel'
 import CourseSidebar from '../components/CourseSidebar'
+import PageBackground from '../components/PageBackground'
 import RewardPopup from '../components/RewardPopup'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
 import { fadeInUp } from '../utils/motion'
+import { courseProgress, lessonNavigation } from '../utils/progress'
 
 function LessonSkeleton() {
   return (
@@ -34,12 +36,14 @@ function LessonSkeleton() {
 
 function Lesson() {
   const { courseId, lessonId } = useParams()
+  const navigate = useNavigate()
   const { data: lesson, status, error, reload } = useFetch(() => getLesson(lessonId), [lessonId])
   const { data: course, setData: setCourse } = useFetch(() => getCourse(courseId), [courseId])
   const { updateUser } = useAuth()
   const [tutorOpen, setTutorOpen] = useState(false)
   const [togglingComplete, setTogglingComplete] = useState(false)
   const [reward, setReward] = useState(null)
+  const [courseCelebration, setCourseCelebration] = useState(null)
   useForceSidebarCollapsed()
 
   const completed = (course?.completed_lesson_ids ?? []).includes(lessonId)
@@ -50,13 +54,31 @@ function Lesson() {
     setTogglingComplete(true)
     try {
       const result = await setLessonCompleted(lessonId, next)
+
+      // Computed from the current `course` snapshot (not inside the setCourse
+      // updater) so the "just completed the whole course" check runs exactly
+      // once against a clean before/after diff, rather than relying on a
+      // variable mutated from within a functional state update.
+      const ids = new Set(course?.completed_lesson_ids ?? [])
+      if (next) ids.add(lessonId)
+      else ids.delete(lessonId)
+      const updatedCourse = course ? { ...course, completed_lesson_ids: [...ids] } : null
+      const beforePercent = course ? courseProgress(course).percent : 0
+      const afterPercent = updatedCourse ? courseProgress(updatedCourse).percent : 0
+      const courseJustCompleted = next && beforePercent < 100 && afterPercent === 100
+
       setCourse((prev) => {
         if (!prev) return prev
-        const ids = new Set(prev.completed_lesson_ids ?? [])
-        if (next) ids.add(lessonId)
-        else ids.delete(lessonId)
-        return { ...prev, completed_lesson_ids: [...ids] }
+        const prevIds = new Set(prev.completed_lesson_ids ?? [])
+        if (next) prevIds.add(lessonId)
+        else prevIds.delete(lessonId)
+        return { ...prev, completed_lesson_ids: [...prevIds] }
       })
+
+      if (courseJustCompleted) {
+        setCourseCelebration({ courseTitle: course.title })
+      }
+
       if (result.xp_total !== undefined) {
         updateUser({
           xp: result.xp_total,
@@ -65,7 +87,9 @@ function Lesson() {
           xp_into_level: result.xp_into_level,
           xp_to_next: result.xp_to_next,
         })
-        if (next) {
+        // Skip the routine per-lesson popup when the bigger course-completion
+        // celebration is about to show — avoid stacking two full-screen modals.
+        if (next && !courseJustCompleted) {
           setReward({
             xpAwarded: result.xp_awarded,
             goldAwarded: result.gold_awarded,
@@ -90,12 +114,16 @@ function Lesson() {
     )
   }
 
+  const { prev: prevLesson, next: nextLesson } = course
+    ? lessonNavigation(course, lessonId)
+    : { prev: null, next: null }
+
   return (
-    <div className="flex">
+    <PageBackground tone="calm" className="flex">
       {course && <CourseSidebar course={course} activeLessonId={lessonId} />}
 
       <motion.div className="flex-1" initial="hidden" animate="visible" variants={fadeInUp}>
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-6 py-3 backdrop-blur-sm">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/60 bg-white/70 px-6 py-3 backdrop-blur-md">
           <div className="flex min-w-0 items-center gap-2">
             <Link
               to={`/course/${courseId}`}
@@ -152,13 +180,52 @@ function Lesson() {
           <VisualAidPanel aids={lesson.visual_aids} />
           <VideoPanel courseId={courseId} lessonId={lessonId} videos={lesson.videos} />
           <HinglishPanel lessonId={lessonId} initialHinglish={lesson.hinglish} />
+
+          <div className="mt-10 flex items-center justify-between gap-3 border-t border-slate-200 pt-6">
+            {prevLesson ? (
+              <button
+                type="button"
+                onClick={() => navigate(`/course/${courseId}/lesson/${prevLesson.id}`)}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Previous lesson
+              </button>
+            ) : (
+              <span />
+            )}
+            {nextLesson ? (
+              <button
+                type="button"
+                onClick={() => navigate(`/course/${courseId}/lesson/${nextLesson.id}`)}
+                className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:bg-primary-500"
+              >
+                Next lesson
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate(`/course/${courseId}`)}
+                className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:bg-primary-500"
+              >
+                Back to course
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <AITutorPanel lessonId={lessonId} open={tutorOpen} onClose={() => setTutorOpen(false)} />
       </motion.div>
 
       <RewardPopup reward={reward} onClose={() => setReward(null)} />
-    </div>
+      <RewardPopup
+        variant="course"
+        reward={courseCelebration}
+        onClose={() => setCourseCelebration(null)}
+      />
+    </PageBackground>
   )
 }
 

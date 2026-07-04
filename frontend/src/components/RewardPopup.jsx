@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import Lottie from './LottiePlayer'
 import { Coins, PartyPopper, Star, X } from 'lucide-react'
+import confettiAnimation from '../assets/lottie/confetti-burst.json'
+import { celebrationSpring } from '../utils/motion'
 
 const PARTICLE_COUNT = 14
 
@@ -24,8 +27,9 @@ function useParticles(seed) {
   )
 }
 
-function RewardPopup({ reward, onClose }) {
+function RewardPopup({ reward, onClose, variant = 'lesson' }) {
   const particles = useParticles(reward)
+  const isCourse = variant === 'course'
 
   useEffect(() => {
     if (!reward) return
@@ -33,11 +37,12 @@ function RewardPopup({ reward, onClose }) {
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', handleKeyDown)
-    const timer = setTimeout(onClose, 5000)
+    const timer = setTimeout(onClose, isCourse ? 8000 : 5000)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
       clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reward, onClose])
 
   return (
@@ -54,7 +59,7 @@ function RewardPopup({ reward, onClose }) {
             initial={{ scale: 0.7, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.85, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+            transition={celebrationSpring}
             onClick={(e) => e.stopPropagation()}
             className="relative flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden rounded-3xl border border-slate-200 bg-white px-8 py-10 text-center shadow-2xl"
           >
@@ -67,53 +72,65 @@ function RewardPopup({ reward, onClose }) {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="relative flex h-20 w-20 items-center justify-center">
-              {particles.map((p) => (
+            {isCourse ? (
+              <Lottie animationData={confettiAnimation} loop={false} className="h-40 w-40" />
+            ) : (
+              <div className="relative flex h-20 w-20 items-center justify-center">
+                {particles.map((p) => (
+                  <motion.span
+                    key={p.id}
+                    className="absolute"
+                    initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 0.6 }}
+                    animate={{ x: p.x, y: p.y, opacity: 0, rotate: p.rotate, scale: 1 }}
+                    transition={{ duration: 0.9, delay: p.delay, ease: 'easeOut' }}
+                  >
+                    {p.isCoin ? (
+                      <Coins className="h-4 w-4 text-amber-400" />
+                    ) : (
+                      <Star className="h-4 w-4 fill-accent-400 text-accent-400" />
+                    )}
+                  </motion.span>
+                ))}
                 <motion.span
-                  key={p.id}
-                  className="absolute"
-                  initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 0.6 }}
-                  animate={{ x: p.x, y: p.y, opacity: 0, rotate: p.rotate, scale: 1 }}
-                  transition={{ duration: 0.9, delay: p.delay, ease: 'easeOut' }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.1 }}
+                  className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-glow"
                 >
-                  {p.isCoin ? (
-                    <Coins className="h-4 w-4 text-amber-400" />
-                  ) : (
-                    <Star className="h-4 w-4 fill-accent-400 text-accent-400" />
-                  )}
+                  <PartyPopper className="h-8 w-8" />
                 </motion.span>
-              ))}
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.1 }}
-                className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-glow"
-              >
-                <PartyPopper className="h-8 w-8" />
-              </motion.span>
-            </div>
+              </div>
+            )}
 
             <div>
               <p className="font-display text-lg font-bold text-slate-900">
-                {reward?.leveledUp ? `Level up! You're now level ${reward.level}` : 'Lesson complete!'}
+                {isCourse
+                  ? 'Course complete! 🎉'
+                  : reward?.leveledUp
+                    ? `Level up! You're now level ${reward.level}`
+                    : 'Lesson complete!'}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                {reward?.leveledUp
-                  ? 'Great momentum — keep the streak going.'
-                  : "Nice work — you're one step closer to mastering this course."}
+                {isCourse
+                  ? `You've finished "${reward?.courseTitle ?? 'this course'}" — incredible work!`
+                  : reward?.leveledUp
+                    ? 'Great momentum — keep the streak going.'
+                    : "Nice work — you're one step closer to mastering this course."}
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 rounded-full bg-accent-400/15 px-3 py-1.5 text-sm font-semibold text-accent-600">
-                <Star className="h-4 w-4 fill-accent-400 text-accent-500" />
-                +{reward?.xpAwarded ?? 0} XP
-              </span>
-              <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700">
-                <Coins className="h-4 w-4 text-amber-500" />
-                +{reward?.goldAwarded ?? 0} gold
-              </span>
-            </div>
+            {!isCourse && (
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 rounded-full bg-accent-400/15 px-3 py-1.5 text-sm font-semibold text-accent-600">
+                  <Star className="h-4 w-4 fill-accent-400 text-accent-500" />
+                  +{reward?.xpAwarded ?? 0} XP
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700">
+                  <Coins className="h-4 w-4 text-amber-500" />
+                  +{reward?.goldAwarded ?? 0} gold
+                </span>
+              </div>
+            )}
 
             <button
               type="button"

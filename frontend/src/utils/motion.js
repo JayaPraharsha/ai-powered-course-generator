@@ -20,3 +20,8 @@ export const scaleIn = {
   hidden: { opacity: 0, scale: 0.96 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.25, ease: "easeOut" } },
 }
+
+// Shared "pop in" spring for celebratory moments (reward/streak/course-complete
+// modals and toasts) — consolidated here so new gamification UI stays consistent
+// instead of re-inlining slightly different spring constants per component.
+export const celebrationSpring = { type: "spring", stiffness: 300, damping: 22 }

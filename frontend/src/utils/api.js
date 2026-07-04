@@ -51,6 +51,8 @@ export const generateCourse = (payload) =>
 
 export const listCourses = () => request('/courses')
 
+export const getDashboard = () => request('/dashboard')
+
 export const listQuizzes = () => request('/courses/quizzes')
 
 export const getCourse = (courseId) => request(`/courses/${courseId}`)

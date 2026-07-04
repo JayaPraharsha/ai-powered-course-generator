@@ -16,6 +16,8 @@ def _public(user: User) -> dict:
         "email": user.email,
         "xp": user.xp,
         "gold": user.gold,
+        "current_streak": user.current_streak,
+        "longest_streak": user.longest_streak,
         **level_progress(user.xp),
     }
 
@@ -31,6 +33,7 @@ async def signup(request: UserSignupRequest):
         password_hash=auth_service.hash_password(request.password),
     )
     saved = await user_service.create_user(user)
+    saved = await user_service.bump_streak(saved.id) or saved
     token = auth_service.create_access_token(saved.id)
     return {"access_token": token, "user": _public(saved)}
 
@@ -41,12 +44,14 @@ async def login(request: UserLoginRequest):
     if not user or not auth_service.verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
+    user = await user_service.bump_streak(user.id) or user
     token = auth_service.create_access_token(user.id)
     return {"access_token": token, "user": _public(user)}
 
 
 @router.get("/me")
 async def me(current_user: User = Depends(get_current_user)):
+    current_user = await user_service.bump_streak(current_user.id) or current_user
     return _public(current_user)
 
 

@@ -9,6 +9,7 @@ import VideoNotes from '../components/VideoNotes'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
+import PageBackground from '../components/PageBackground'
 
 function VideoQA({ lessonId, videoUrl }) {
   const [messages, setMessages] = useState([])
@@ -38,7 +39,7 @@ function VideoQA({ lessonId, videoUrl }) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-white/60 bg-white/70 p-4 backdrop-blur-md shadow-glow">
       <h2 className="flex items-center gap-2 font-display text-sm font-semibold text-slate-900">
         <MessageCircle className="h-4 w-4 text-primary-600" />
         Ask about this video
@@ -126,33 +127,33 @@ function VideoDetail() {
 
   if (status === 'loading') {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-10">
+      <PageBackground tone="calm" className="mx-auto max-w-3xl px-6 py-10">
         <Skeleton className="aspect-video w-full" />
         <Skeleton className="mt-4 h-6 w-2/3" />
-      </div>
+      </PageBackground>
     )
   }
 
   if (status === 'error') {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <PageBackground tone="calm" className="mx-auto max-w-2xl px-6 py-12">
         <ErrorMessage message={error} onRetry={reload} />
-      </div>
+      </PageBackground>
     )
   }
 
   if (!video) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <PageBackground tone="calm" className="mx-auto max-w-2xl px-6 py-12">
         <ErrorMessage message="Video not found." />
-      </div>
+      </PageBackground>
     )
   }
 
   const embedUrl = getYoutubeEmbedUrl(video.url)
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
+    <PageBackground tone="calm" className="mx-auto max-w-3xl px-6 py-10">
       <Link
         to={`/course/${courseId}/lesson/${lessonId}`}
         className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800"
@@ -176,7 +177,7 @@ function VideoDetail() {
       <h1 className="mt-4 font-display text-xl font-bold text-slate-900">{video.title}</h1>
 
       <div className="mt-6 flex flex-col gap-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-white/60 bg-white/70 p-4 backdrop-blur-md shadow-glow">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 font-display text-sm font-semibold text-slate-900">
               <Sparkles className="h-4 w-4 text-primary-600" />
@@ -204,7 +205,7 @@ function VideoDetail() {
 
         <VideoQA lessonId={lessonId} videoUrl={video.url} />
       </div>
-    </div>
+    </PageBackground>
   )
 }
 

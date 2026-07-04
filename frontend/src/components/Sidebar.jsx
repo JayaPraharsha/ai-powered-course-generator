@@ -1,10 +1,11 @@
 import { Link, NavLink } from 'react-router-dom'
-import { LayoutDashboard, PanelLeftClose, PanelLeftOpen, PlusCircle } from 'lucide-react'
+import { BookOpen, LayoutDashboard, PanelLeftClose, PanelLeftOpen, PlusCircle } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 
 const navItems = [
-  { to: '/', label: 'New Course', icon: PlusCircle, end: true },
-  { to: '/courses', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/courses', label: 'Courses', icon: BookOpen },
+  { to: '/create', label: 'New Course', icon: PlusCircle },
 ]
 
 function Sidebar() {
@@ -12,7 +13,7 @@ function Sidebar() {
 
   return (
     <aside
-      className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white py-6 transition-[width] duration-200 sm:flex ${
+      className={`hidden shrink-0 flex-col border-r border-white/60 bg-white/70 py-6 backdrop-blur-xl transition-[width] duration-200 sm:flex ${
         sidebarCollapsed ? 'w-16 px-2' : 'w-64 px-5'
       }`}
     >

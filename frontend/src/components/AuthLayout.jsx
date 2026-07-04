@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { ListChecks, Sparkles, TrendingUp, Video } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '../utils/motion'
+import StudyingIllustration from './illustrations/StudyingIllustration'
+import PageBackground from './PageBackground'
 
-const FEATURES = [
+const DEFAULT_FEATURES = [
   {
     icon: Sparkles,
     title: 'AI-generated courses',
@@ -35,7 +37,7 @@ function BrandMark({ className = 'h-10 w-10 text-base' }) {
   )
 }
 
-function AuthLayout({ heading, subheading, children }) {
+function AuthLayout({ heading, subheading, children, features = DEFAULT_FEATURES }) {
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-600 to-primary-800 px-12 py-14 text-white lg:flex">
@@ -57,7 +59,10 @@ function AuthLayout({ heading, subheading, children }) {
         </motion.div>
 
         <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="relative">
-          <h2 className="font-display text-3xl font-bold leading-tight">
+          <div className="flex justify-center">
+            <StudyingIllustration className="h-40 w-40" />
+          </div>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight">
             Learn anything, one AI-built course at a time.
           </h2>
           <p className="mt-3 max-w-sm text-primary-100">
@@ -71,7 +76,7 @@ function AuthLayout({ heading, subheading, children }) {
             initial="hidden"
             animate="visible"
           >
-            {FEATURES.map(({ icon: Icon, title, description }) => (
+            {features.map(({ icon: Icon, title, description }) => (
               <motion.li key={title} variants={fadeInUp} className="flex items-start gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15">
                   <Icon className="h-4 w-4" />
@@ -90,9 +95,9 @@ function AuthLayout({ heading, subheading, children }) {
         </p>
       </div>
 
-      <div className="flex w-full flex-col justify-center px-6 py-16 lg:w-1/2 lg:px-16">
+      <PageBackground className="flex w-full flex-col justify-center px-6 py-16 lg:w-1/2 lg:px-16">
         <motion.div
-          className="mx-auto flex w-full max-w-sm flex-col"
+          className="mx-auto flex w-full max-w-sm flex-col rounded-3xl border border-white/60 bg-white/70 p-8 backdrop-blur-md shadow-glow"
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
@@ -107,7 +112,7 @@ function AuthLayout({ heading, subheading, children }) {
 
           {children}
         </motion.div>
-      </div>
+      </PageBackground>
     </div>
   )
 }
