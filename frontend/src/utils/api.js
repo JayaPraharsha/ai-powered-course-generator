@@ -54,11 +54,11 @@ export const getCourse = (courseId) => request(`/courses/${courseId}`)
 // Lessons — GET auto-enriches (quiz/videos/visuals) on first view server-side
 export const getLesson = (lessonId) => request(`/lessons/${lessonId}`)
 
-export const generateQuiz = (lessonId) =>
-  request(`/lessons/${lessonId}/quiz/generate`, { method: 'POST' })
+export const getModuleQuiz = (courseId, moduleId) =>
+  request(`/courses/${courseId}/modules/${moduleId}/quiz`, { method: 'POST' })
 
-export const submitQuiz = (lessonId, answers) =>
-  request(`/lessons/${lessonId}/quiz/submit`, {
+export const submitModuleQuiz = (courseId, moduleId, answers) =>
+  request(`/courses/${courseId}/modules/${moduleId}/quiz/submit`, {
     method: 'POST',
     body: JSON.stringify({ answers }),
   })
@@ -82,6 +82,12 @@ export const askTutor = (lessonId, question) =>
   request(`/lessons/${lessonId}/tutor/ask`, {
     method: 'POST',
     body: JSON.stringify({ question }),
+  })
+
+export const setLessonCompleted = (lessonId, completed) =>
+  request(`/lessons/${lessonId}/complete`, {
+    method: 'POST',
+    body: JSON.stringify({ completed }),
   })
 
 export { API_BASE_URL, request }
