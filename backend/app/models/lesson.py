@@ -51,7 +51,6 @@ class Lesson(BaseModel):
     title: str
     objectives: list[str] = Field(default_factory=list)
     content: list[ContentBlock] = Field(default_factory=list)
-    quiz: list[QuizQuestion] = Field(default_factory=list)
     videos: list[VideoRecommendation] = Field(default_factory=list)
     visual_aids: list[VisualAid] = Field(default_factory=list)
     hinglish: HinglishContent | None = None
