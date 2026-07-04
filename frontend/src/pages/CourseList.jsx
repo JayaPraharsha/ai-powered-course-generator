@@ -1,12 +1,99 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus } from 'lucide-react'
-import { listCourses } from '../utils/api'
+import { CheckCircle2, Circle, Plus } from 'lucide-react'
+import { listCourses, listQuizzes } from '../utils/api'
 import useFetch from '../hooks/useFetch'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
 import CourseCard from '../components/CourseCard'
 import { fadeInUp, staggerContainer } from '../utils/motion'
+
+const TABS = [
+  { id: 'courses', label: 'Courses' },
+  { id: 'quizzes', label: 'Quizzes' },
+]
+
+function QuizzesTab() {
+  const [quizzes, setQuizzes] = useState(null)
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    listQuizzes()
+      .then((data) => {
+        setQuizzes(data)
+        setStatus('success')
+      })
+      .catch((err) => {
+        setError(err.message)
+        setStatus('error')
+      })
+  }, [])
+
+  if (status === 'loading') {
+    return (
+      <div className="mt-8 flex flex-col gap-3">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="mt-8">
+        <ErrorMessage message={error} />
+      </div>
+    )
+  }
+
+  if (quizzes.length === 0) {
+    return (
+      <div className="mt-8 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+        <p className="text-slate-500">No module quizzes yet.</p>
+        <p className="text-xs text-slate-400">
+          Complete every lesson in a module to unlock its quiz.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <motion.div
+      className="mt-8 flex flex-col gap-3"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      {quizzes.map((quiz) => (
+        <motion.div key={`${quiz.course_id}-${quiz.module_id}`} variants={fadeInUp}>
+          <Link
+            to={`/course/${quiz.course_id}`}
+            className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-glow"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">{quiz.module_title}</p>
+              <p className="truncate text-xs text-slate-400">{quiz.course_title}</p>
+            </div>
+            {quiz.quiz_completed ? (
+              <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-semibold text-success-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Passed · {quiz.quiz_score}/{quiz.quiz_total}
+              </span>
+            ) : (
+              <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                <Circle className="h-3.5 w-3.5" />
+                Available
+              </span>
+            )}
+          </Link>
+        </motion.div>
+      ))}
+    </motion.div>
+  )
+}
 
 function CardSkeleton() {
   return (
@@ -24,6 +111,7 @@ function CardSkeleton() {
 
 function CourseList() {
   const { data: courses, status, error, reload } = useFetch(() => listCourses(), [])
+  const [tab, setTab] = useState('courses')
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -41,7 +129,26 @@ function CourseList() {
         </Link>
       </div>
 
-      {status === 'loading' && (
+      <div className="mt-6 flex gap-1.5 border-b border-slate-200">
+        {TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition ${
+              tab === id
+                ? 'border-primary-600 text-primary-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'quizzes' && <QuizzesTab />}
+
+      {tab === 'courses' && status === 'loading' && (
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(3)].map((_, i) => (
             <CardSkeleton key={i} />
@@ -49,13 +156,13 @@ function CourseList() {
         </div>
       )}
 
-      {status === 'error' && (
+      {tab === 'courses' && status === 'error' && (
         <div className="mt-8">
           <ErrorMessage message={error} onRetry={reload} />
         </div>
       )}
 
-      {status === 'success' && courses.length === 0 && (
+      {tab === 'courses' && status === 'success' && courses.length === 0 && (
         <motion.div
           initial="hidden"
           animate="visible"
@@ -73,7 +180,7 @@ function CourseList() {
         </motion.div>
       )}
 
-      {status === 'success' && courses.length > 0 && (
+      {tab === 'courses' && status === 'success' && courses.length > 0 && (
         <motion.div
           className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
           variants={staggerContainer}

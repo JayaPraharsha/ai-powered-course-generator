@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import CourseList from './pages/CourseList'
 import Course from './pages/Course'
 import Lesson from './pages/Lesson'
+import VideoDetail from './pages/VideoDetail'
 
 function App() {
   return (
@@ -19,6 +20,10 @@ function App() {
           <Route path="/courses" element={<CourseList />} />
           <Route path="/course/:courseId" element={<Course />} />
           <Route path="/course/:courseId/lesson/:lessonId" element={<Lesson />} />
+          <Route
+            path="/course/:courseId/lesson/:lessonId/video/:videoIndex"
+            element={<VideoDetail />}
+          />
         </Route>
       </Route>
     </Routes>

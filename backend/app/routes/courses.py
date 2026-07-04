@@ -23,6 +23,11 @@ async def list_courses(current_user: User = Depends(get_current_user)):
     return await course_service.list_courses(owner_id=current_user.id)
 
 
+@router.get("/quizzes")
+async def list_quizzes(current_user: User = Depends(get_current_user)):
+    return await course_service.list_quiz_summaries(owner_id=current_user.id)
+
+
 @router.get("/{course_id}")
 async def get_course(course_id: str, current_user: User = Depends(get_current_user)):
     course = await course_service.get_course(course_id)

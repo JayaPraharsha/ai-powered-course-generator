@@ -26,3 +26,5 @@ def get_database() -> AsyncIOMotorDatabase:
 async def ensure_indexes() -> None:
     db = get_database()
     await db["users"].create_index("email", unique=True)
+    await db["courses"].create_index("owner_id")
+    await db["lessons"].create_index("course_id")

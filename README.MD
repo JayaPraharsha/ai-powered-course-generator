@@ -1,4 +1,4 @@
-# 📚 Text-to-Learn
+# 📚 Learnify AI
 
 **Turn a single prompt into a full, structured course** — modules, lessons, videos, an AI tutor, and quizzes that track real progress.
 
@@ -124,3 +124,22 @@ frontend/
 ## 🔑 Environment Variables
 
 See [`backend/.env.example`](backend/.env.example) — requires a `GEMINI_API_KEY` at minimum, plus `OPENAI_API_KEY` if using OpenAI for course generation (`LLM_PROVIDER=openai`, the default).
+
+Renaming from "Text-to-Learn" changed the *default* `MONGO_DB_NAME` (now `learnify_ai`) — this only affects fresh `.env` files copied from `.env.example`. If your local `.env` already pins an explicit `MONGO_DB_NAME`, it keeps pointing at that database; nothing migrates automatically.
+
+---
+
+## 💾 Backup & Restore
+
+MongoDB runs in the `mongo` compose service — these scripts shell out to `docker compose exec mongo ...`, so no host-installed Mongo tools are required.
+
+```bash
+# Full backup: a BSON dump (dump.archive) plus a JSON export per collection
+scripts/export_mongo.sh
+# → writes to backups/<timestamp>/ by default, or pass a custom output dir
+
+# Restore from a backup directory (drops existing collections first)
+scripts/restore_mongo.sh backups/20260704-101500
+```
+
+Every logged-in user can also export just their own data (courses, lessons, video notes) as JSON via the account menu → **Export my data**, or directly: `GET /api/auth/me/export`.

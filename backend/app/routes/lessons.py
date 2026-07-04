@@ -62,6 +62,22 @@ async def video_notes(
     return await video_note_service.create_video_note(note)
 
 
+class VideoQuestion(BaseModel):
+    video_url: str
+    question: str
+
+
+@router.post("/{lesson_id}/videos/ask")
+async def ask_about_video(
+    lesson_id: str, body: VideoQuestion, current_user: User = Depends(get_current_user)
+):
+    lesson = await _require_lesson(lesson_id, current_user)
+    answer = await with_retries(
+        video_agent.ask_about_video, body.video_url, lesson.title, body.question
+    )
+    return {"answer": answer}
+
+
 class LessonCompletion(BaseModel):
     completed: bool
 

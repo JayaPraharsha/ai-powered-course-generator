@@ -35,6 +35,33 @@ async def list_courses(owner_id: str, limit: int = 20) -> list[Course]:
     return [Course(**doc) async for doc in cursor]
 
 
+async def list_quiz_summaries(owner_id: str) -> list[dict]:
+    """Flattens every module that has a quiz across all of the owner's courses.
+    There's no standalone quiz entity — quizzes live nested in Course.modules[]."""
+    db = get_database()
+    cursor = db[COLLECTION].find(
+        {"owner_id": owner_id}, {"title": 1, "modules": 1}
+    )
+    summaries: list[dict] = []
+    async for doc in cursor:
+        course_id = str(doc["_id"])
+        for module in doc.get("modules", []):
+            if not module.get("quiz"):
+                continue
+            summaries.append(
+                {
+                    "course_id": course_id,
+                    "course_title": doc.get("title", ""),
+                    "module_id": module.get("id"),
+                    "module_title": module.get("title", ""),
+                    "quiz_completed": module.get("quiz_completed", False),
+                    "quiz_score": module.get("quiz_score"),
+                    "quiz_total": module.get("quiz_total"),
+                }
+            )
+    return summaries
+
+
 async def mark_lesson_enriched(course_id: str, module_id: str, lesson_id: str) -> None:
     db = get_database()
     await db[COLLECTION].update_one(

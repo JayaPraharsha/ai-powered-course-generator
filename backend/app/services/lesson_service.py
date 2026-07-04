@@ -34,6 +34,14 @@ async def find_lesson_by_stub(course_id: str, module_id: str, lesson_stub_id: st
     return await get_lesson(lesson_stub_id)
 
 
+async def list_lessons_by_course_ids(course_ids: list[str]) -> list[Lesson]:
+    if not course_ids:
+        return []
+    db = get_database()
+    cursor = db[COLLECTION].find({"course_id": {"$in": course_ids}})
+    return [Lesson(**doc) async for doc in cursor]
+
+
 async def set_visual_aids(lesson_id: str, aids: list[VisualAid]) -> None:
     db = get_database()
     await db[COLLECTION].update_one(

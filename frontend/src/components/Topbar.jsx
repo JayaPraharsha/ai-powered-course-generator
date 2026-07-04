@@ -1,52 +1,54 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { LogOut, Menu } from "lucide-react"
-import { useAuth } from "../context/AuthContext"
-import MobileNav from "./MobileNav"
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Menu, MessageCircle } from 'lucide-react'
+import { useUI } from '../context/UIContext'
+import AccountMenu from './AccountMenu'
+import MobileNav from './MobileNav'
 
 function Topbar() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const { sidebarCollapsed, setSidebarCollapsed, setChatOpen } = useUI()
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
-  function handleLogout() {
-    logout()
-    navigate("/login")
+  function handleMenuToggle() {
+    // Each half is naturally inert on the other breakpoint — MobileNav renders
+    // sm:hidden, and Sidebar's collapsed state only has visible effect on sm:+.
+    setMobileNavOpen(true)
+    setSidebarCollapsed(!sidebarCollapsed)
   }
 
   return (
     <>
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:hidden">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4">
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setMenuOpen(true)}
+            onClick={handleMenuToggle}
             className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-            aria-label="Open menu"
+            aria-label="Toggle menu"
           >
             <Menu className="h-5 w-5" />
           </button>
           <Link to="/" className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white">
-              T
+              L
             </span>
-            <span className="font-display text-sm font-semibold text-slate-800">
-              Text-to-Learn
-            </span>
+            <span className="font-display text-sm font-semibold text-slate-800">Learnify AI</span>
           </Link>
         </div>
-        {user && (
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={handleLogout}
-            className="rounded-md p-1.5 text-slate-400 hover:bg-danger-500/10 hover:text-danger-600"
-            aria-label="Log out"
+            onClick={() => setChatOpen(true)}
+            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            aria-label="Ask a doubt"
+            title="Ask a doubt"
           >
-            <LogOut className="h-4 w-4" />
+            <MessageCircle className="h-5 w-5" />
           </button>
-        )}
+          <AccountMenu />
+        </div>
       </header>
-      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
     </>
   )
 }

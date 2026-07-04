@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from app.config import settings
 from app.database import close_mongo_connection, connect_to_mongo, ensure_indexes
 from app.logging_config import configure_logging
-from app.routes import auth, courses, health, lessons
+from app.routes import auth, chat, courses, health, lessons
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     close_mongo_connection()
 
 
-app = FastAPI(title="Text-to-Learn API", lifespan=lifespan)
+app = FastAPI(title="Learnify AI API", lifespan=lifespan)
 
 
 class LogRequestsMiddleware:
@@ -83,6 +83,7 @@ app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(courses.router, prefix="/api")
 app.include_router(lessons.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
 
 # Starlette always places the generic-Exception handler inside ServerErrorMiddleware,
 # which it puts outermost no matter when add_middleware(CORSMiddleware) is called —

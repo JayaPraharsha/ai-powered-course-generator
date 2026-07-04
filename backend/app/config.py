@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     mongo_uri: str = "mongodb://localhost:27017"
-    mongo_db_name: str = "text_to_learn"
+    mongo_db_name: str = "learnify_ai"
     cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
 

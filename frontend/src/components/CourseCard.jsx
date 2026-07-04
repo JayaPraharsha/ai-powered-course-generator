@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { BookOpen, Layers } from 'lucide-react'
@@ -9,6 +10,8 @@ function CourseCard({ course }) {
   const gradient = coverGradient(course._id)
   const moduleCount = course.modules?.length ?? 0
   const { percent, lessonsCompleted, lessonsTotal } = courseProgress(course)
+  const [imageFailed, setImageFailed] = useState(false)
+  const showImage = course.cover_image_url && !imageFailed
 
   return (
     <motion.div variants={fadeInUp}>
@@ -17,11 +20,22 @@ function CourseCard({ course }) {
         className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-glow"
       >
         <div
-          className={`relative flex h-32 items-center justify-center bg-gradient-to-br ${gradient}`}
+          className={`relative flex h-32 items-center justify-center overflow-hidden ${
+            showImage ? '' : `bg-gradient-to-br ${gradient}`
+          }`}
         >
-          <span className="font-display text-4xl font-bold text-white/90">
-            {course.title?.[0]?.toUpperCase() ?? '?'}
-          </span>
+          {showImage ? (
+            <img
+              src={course.cover_image_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={() => setImageFailed(true)}
+            />
+          ) : (
+            <span className="font-display text-4xl font-bold text-white/90">
+              {course.title?.[0]?.toUpperCase() ?? '?'}
+            </span>
+          )}
           {course.level && (
             <span className="absolute top-3 right-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold capitalize text-slate-700">
               {course.level}

@@ -30,7 +30,7 @@ function BrandMark({ className = 'h-10 w-10 text-base' }) {
     <span
       className={`flex items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 font-bold text-white shadow-glow ${className}`}
     >
-      T
+      L
     </span>
   )
 }
@@ -53,7 +53,7 @@ function AuthLayout({ heading, subheading, children }) {
           className="relative flex items-center gap-3"
         >
           <BrandMark />
-          <span className="font-display text-lg font-bold">Text-to-Learn</span>
+          <span className="font-display text-lg font-bold">Learnify AI</span>
         </motion.div>
 
         <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="relative">

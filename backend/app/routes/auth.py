@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import get_current_user
 from app.models.user import User, UserLoginRequest, UserSignupRequest
-from app.services import auth_service, user_service
+from app.services import auth_service, course_service, lesson_service, user_service, video_note_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,3 +41,17 @@ async def login(request: UserLoginRequest):
 @router.get("/me")
 async def me(current_user: User = Depends(get_current_user)):
     return _public(current_user)
+
+
+@router.get("/me/export")
+async def export_my_data(current_user: User = Depends(get_current_user)):
+    courses = await course_service.list_courses(current_user.id, limit=1000)
+    lessons = await lesson_service.list_lessons_by_course_ids([c.id for c in courses])
+    video_notes = await video_note_service.find_video_notes_by_lesson_ids([l.id for l in lessons])
+    return {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "user": _public(current_user),
+        "courses": [c.model_dump(mode="json") for c in courses],
+        "lessons": [l.model_dump(mode="json") for l in lessons],
+        "video_notes": [n.model_dump(mode="json") for n in video_notes],
+    }

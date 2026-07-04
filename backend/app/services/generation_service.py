@@ -3,6 +3,7 @@ import time
 
 from bson import ObjectId
 
+from app.agents import image_agent
 from app.agents.course_planner import generate_course_outline
 from app.agents.module_generator import generate_all_modules_concurrently
 from app.agents.retry import with_retries
@@ -68,6 +69,12 @@ async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Cour
 
         modules.append(ModuleOutline(id=module_id, title=module_title, lessons=lesson_stubs))
 
+    try:
+        cover_image_url = await image_agent.discover_topic_image(outline.title, outline.description)
+    except Exception:
+        logger.warning("Cover image discovery failed for %r", outline.title, exc_info=True)
+        cover_image_url = None
+
     course = Course(
         owner_id=owner_id,
         title=outline.title,
@@ -77,6 +84,7 @@ async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Cour
         goals=request.goals,
         study_time=request.study_time,
         modules=modules,
+        cover_image_url=cover_image_url,
     )
     saved_course = await course_service.create_course(course)
 
