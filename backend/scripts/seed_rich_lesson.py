@@ -44,6 +44,32 @@ async def main():
                     LessonStub(id=str(ObjectId()), title="Managing Side Effects with useEffect"),
                     LessonStub(id=str(ObjectId()), title="Building Your First Custom Hook"),
                 ],
+                quiz=[
+                    QuizQuestion(
+                        id=str(ObjectId()),
+                        type="mcq",
+                        question="What does useState return?",
+                        options=[
+                            "A class",
+                            "A tuple of [state, setState]",
+                            "A promise",
+                            "Nothing",
+                        ],
+                        correct_answer="A tuple of [state, setState]",
+                        explanation=(
+                            "useState returns an array with the current state and a setter "
+                            "function."
+                        ),
+                    ),
+                    QuizQuestion(
+                        id=str(ObjectId()),
+                        type="true_false",
+                        question="useState can only be used in class components.",
+                        options=["True", "False"],
+                        correct_answer="False",
+                        explanation="useState is a Hook — Hooks only work in function components.",
+                    ),
+                ],
             )
         ],
     )
@@ -81,31 +107,6 @@ async def main():
             ContentBlock(
                 type="takeaway",
                 text="`useState` returns a `[value, setter]` pair — call the setter to trigger a re-render with the new value.",
-            ),
-        ],
-        quiz=[
-            QuizQuestion(
-                id=str(ObjectId()),
-                type="mcq",
-                question="What does useState return?",
-                options=["A class", "A tuple of [state, setState]", "A promise", "Nothing"],
-                correct_answer="A tuple of [state, setState]",
-                explanation="useState returns an array with the current state and a setter function.",
-            ),
-            QuizQuestion(
-                id=str(ObjectId()),
-                type="true_false",
-                question="useState can only be used in class components.",
-                options=["True", "False"],
-                correct_answer="False",
-                explanation="useState is a Hook — Hooks only work in function components.",
-            ),
-            QuizQuestion(
-                id=str(ObjectId()),
-                type="fill_blank",
-                question="const [theme, setTheme] = useState('____');",
-                correct_answer="light",
-                explanation="Any initial string value works — 'light' is a common example for a theme toggle.",
             ),
         ],
         videos=[

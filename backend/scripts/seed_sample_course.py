@@ -16,6 +16,18 @@ from app.models.lesson import ContentBlock, Lesson, QuizQuestion
 from app.services import course_service, lesson_service
 
 
+SAMPLE_QUIZ = [
+    QuizQuestion(
+        id=str(ObjectId()),
+        type="mcq",
+        question="What does useState return?",
+        options=["A class", "A tuple of [state, setState]", "A promise", "Nothing"],
+        correct_answer="A tuple of [state, setState]",
+        explanation="useState returns an array with the current state and a setter function.",
+    )
+]
+
+
 async def main():
     connect_to_mongo()
 
@@ -34,6 +46,7 @@ async def main():
                 id=module_id,
                 title="Getting Started with Hooks",
                 lessons=[LessonStub(id=lesson_id, title="What is useState?")],
+                quiz=SAMPLE_QUIZ,
             )
         ],
     )
@@ -55,16 +68,6 @@ async def main():
             ContentBlock(
                 type="code", language="jsx", text="const [count, setCount] = useState(0);"
             ),
-        ],
-        quiz=[
-            QuizQuestion(
-                id=str(ObjectId()),
-                type="mcq",
-                question="What does useState return?",
-                options=["A class", "A tuple of [state, setState]", "A promise", "Nothing"],
-                correct_answer="A tuple of [state, setState]",
-                explanation="useState returns an array with the current state and a setter function.",
-            )
         ],
         is_enriched=True,
     )
