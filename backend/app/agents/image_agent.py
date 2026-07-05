@@ -11,7 +11,7 @@ topics have a Wikipedia page with a usable thumbnail.
 import httpx
 from google.genai import types
 
-from app.agents.gemini_client import GEMINI_MODEL_NAME, client
+from app.agents.gemini_client import GEMINI_MODEL_NAME, generate_content
 from app.agents.video_agent import resolve_grounding_redirect
 
 _IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
@@ -29,7 +29,7 @@ async def _looks_like_image(http_client: httpx.AsyncClient, url: str) -> bool:
 
 
 async def _grounded_image_url(course_title: str, description: str) -> str | None:
-    response = await client.aio.models.generate_content(
+    response = await generate_content(
         model=GEMINI_MODEL_NAME,
         contents=(
             "Find one high-quality, topic-relevant photo or illustration suitable as a "

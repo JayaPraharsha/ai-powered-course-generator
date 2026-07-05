@@ -1,3 +1,5 @@
+import { useReducedMotion } from "framer-motion"
+
 export const fadeInUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
@@ -8,6 +10,20 @@ export const staggerContainer = {
   visible: {
     transition: { staggerChildren: 0.06 },
   },
+}
+
+const STILL_FADE = { hidden: { opacity: 1 }, visible: { opacity: 1 } }
+const STILL_STAGGER = { hidden: {}, visible: {} }
+
+// Page-level entrance animations (fadeInUp/staggerContainer) are purely
+// decorative motion, not state changes — swap them for a no-op variant when
+// the user prefers reduced motion instead of forcing every page transition.
+export function usePageMotion() {
+  const reduce = useReducedMotion()
+  return {
+    fadeInUp: reduce ? STILL_FADE : fadeInUp,
+    staggerContainer: reduce ? STILL_STAGGER : staggerContainer,
+  }
 }
 
 export const pageTransition = {

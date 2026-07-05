@@ -29,3 +29,6 @@ async def ensure_indexes() -> None:
     await db["courses"].create_index("owner_id")
     await db["lessons"].create_index("course_id")
     await db["activity_log"].create_index([("user_id", 1), ("completed_at", -1)])
+    await db["generation_jobs"].create_index([("owner_id", 1), ("created_at", -1)])
+    await db["generation_jobs"].create_index([("owner_id", 1), ("dedupe_key", 1), ("status", 1)])
+    await db["generation_jobs"].create_index("status")

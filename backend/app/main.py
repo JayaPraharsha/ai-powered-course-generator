@@ -10,11 +10,15 @@ from fastapi.responses import JSONResponse
 from app.config import settings
 from app.database import close_mongo_connection, connect_to_mongo, ensure_indexes
 from app.logging_config import configure_logging
-from app.routes import auth, chat, courses, dashboard, health, lessons
-from app.services import course_service
 
+# Configured before importing routes/services: several agent modules (e.g.
+# app.agents.gemini_keys) log at import time, which would otherwise be
+# silently dropped by logging's unconfigured "last resort" handler.
 configure_logging()
 logger = logging.getLogger("app")
+
+from app.routes import auth, chat, courses, dashboard, health, lessons  # noqa: E402
+from app.services import course_service, job_service, job_worker  # noqa: E402
 
 
 @asynccontextmanager
@@ -22,7 +26,10 @@ async def lifespan(app: FastAPI):
     connect_to_mongo()
     await ensure_indexes()
     await course_service.ensure_platform_template_exists()
+    await job_service.requeue_stale_processing_jobs()
+    job_worker.start_workers(settings.job_worker_concurrency)
     yield
+    await job_worker.stop_workers()
     close_mongo_connection()
 
 

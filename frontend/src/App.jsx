@@ -9,6 +9,7 @@ import CourseList from './pages/CourseList'
 import Course from './pages/Course'
 import Lesson from './pages/Lesson'
 import VideoDetail from './pages/VideoDetail'
+import GenerationJobs from './pages/GenerationJobs'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/create" element={<CreateCourse />} />
+          <Route path="/jobs" element={<GenerationJobs />} />
           <Route path="/courses" element={<CourseList />} />
           <Route path="/course/:courseId" element={<Course />} />
           <Route path="/course/:courseId/lesson/:lessonId" element={<Lesson />} />

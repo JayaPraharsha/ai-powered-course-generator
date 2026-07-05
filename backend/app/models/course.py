@@ -45,5 +45,8 @@ class Course(BaseModel):
     cover_image_url: str | None = None
     is_platform: bool = False
     template_id: str | None = None
+    # Exact seed topic for platform templates — the AI-generated `title` is
+    # non-deterministic, so re-seeding idempotency checks this field instead.
+    source_topic: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

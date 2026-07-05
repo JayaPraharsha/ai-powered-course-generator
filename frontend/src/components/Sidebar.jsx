@@ -1,11 +1,12 @@
 import { Link, NavLink } from 'react-router-dom'
-import { BookOpen, LayoutDashboard, PanelLeftClose, PanelLeftOpen, PlusCircle } from 'lucide-react'
+import { BookOpen, LayoutDashboard, ListChecks, PanelLeftClose, PanelLeftOpen, PlusCircle } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/courses', label: 'Courses', icon: BookOpen },
   { to: '/create', label: 'New Course', icon: PlusCircle },
+  { to: '/jobs', label: 'Generation Jobs', icon: ListChecks },
 ]
 
 function Sidebar() {

@@ -124,9 +124,17 @@ frontend/
 
 ## 🔑 Environment Variables
 
-See [`backend/.env.example`](backend/.env.example) — requires a `GEMINI_API_KEY` at minimum, plus `OPENAI_API_KEY` if using OpenAI for course generation (`LLM_PROVIDER=openai`, the default).
+See [`backend/.env.example`](backend/.env.example) — requires a `GEMINI_API_KEY` at minimum, plus `OPENAI_API_KEY` if using OpenAI for course generation (`LLM_PROVIDER=openai`, the default). Additional `GEMINI_API_KEY_1`, `_2`, … are auto-discovered and rotated through on quota/rate-limit errors — see `backend/app/agents/gemini_keys.py`.
 
 Renaming from "Text-to-Learn" changed the *default* `MONGO_DB_NAME` (now `learnify_ai`) — this only affects fresh `.env` files copied from `.env.example`. If your local `.env` already pins an explicit `MONGO_DB_NAME`, it keeps pointing at that database; nothing migrates automatically.
+
+---
+
+## 🚀 Deployment
+
+Full guide, required env vars, and a post-deploy checklist: **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+
+Target: Vercel (frontend) · Render (backend) · MongoDB Atlas (database) — no other managed infrastructure required.
 
 ---
 

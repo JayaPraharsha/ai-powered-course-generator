@@ -21,7 +21,7 @@ import StudyingIllustration from '../components/illustrations/StudyingIllustrati
 import EmptyStateIllustration from '../components/illustrations/EmptyStateIllustration'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
-import { fadeInUp, staggerContainer } from '../utils/motion'
+import { usePageMotion } from '../utils/motion'
 
 function timeAgo(isoString) {
   const diffMs = Date.now() - new Date(isoString).getTime()
@@ -70,6 +70,7 @@ function DashboardSkeleton() {
 function Dashboard() {
   const { user } = useAuth()
   const { data, status, error, reload } = useFetch(() => getDashboard(), [])
+  const { fadeInUp, staggerContainer } = usePageMotion()
 
   if (status === 'loading') return <DashboardSkeleton />
   if (status === 'error') {

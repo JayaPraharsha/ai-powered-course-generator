@@ -16,7 +16,7 @@ import PageBackground from '../components/PageBackground'
 import RewardPopup from '../components/RewardPopup'
 import ErrorMessage from '../components/ErrorMessage'
 import Skeleton from '../components/Skeleton'
-import { fadeInUp } from '../utils/motion'
+import { usePageMotion } from '../utils/motion'
 import { courseProgress, lessonNavigation } from '../utils/progress'
 
 function LessonSkeleton() {
@@ -38,6 +38,7 @@ function Lesson() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
   const { data: lesson, status, error, reload } = useFetch(() => getLesson(lessonId), [lessonId])
+  const { fadeInUp } = usePageMotion()
   const { data: course, setData: setCourse } = useFetch(() => getCourse(courseId), [courseId])
   const { updateUser } = useAuth()
   const [tutorOpen, setTutorOpen] = useState(false)

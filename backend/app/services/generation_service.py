@@ -14,7 +14,25 @@ from app.services import course_service, lesson_service
 logger = logging.getLogger(__name__)
 
 
-async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Course:
+def _build_content_blocks(blocks) -> list[ContentBlock]:
+    """Schema-level validation (LessonContentBlockSchema) should already reject
+    malformed block types, but this is kept as a last line of defense — one bad
+    block degrades a lesson instead of crashing the whole course."""
+    built = []
+    for block in blocks:
+        try:
+            built.append(ContentBlock(**block.model_dump()))
+        except Exception:
+            logger.warning("Dropping malformed content block: %r", block, exc_info=True)
+    return built
+
+
+async def generate_course(
+    request: CourseGenerateRequest,
+    owner_id: str,
+    is_platform: bool = False,
+    source_topic: str | None = None,
+) -> Course:
     start = time.perf_counter()
     logger.info("Course generation started: topic=%r level=%r", request.topic, request.level)
 
@@ -60,9 +78,7 @@ async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Cour
                     module_id=module_id,
                     title=generated_lesson.title,
                     objectives=generated_lesson.objectives,
-                    content=[
-                        ContentBlock(**block.model_dump()) for block in generated_lesson.content
-                    ],
+                    content=_build_content_blocks(generated_lesson.content),
                     is_enriched=True,
                 )
             )
@@ -85,6 +101,8 @@ async def generate_course(request: CourseGenerateRequest, owner_id: str) -> Cour
         study_time=request.study_time,
         modules=modules,
         cover_image_url=cover_image_url,
+        is_platform=is_platform,
+        source_topic=source_topic,
     )
     saved_course = await course_service.create_course(course)
 

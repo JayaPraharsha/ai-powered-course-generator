@@ -11,7 +11,7 @@ import json
 import httpx
 from google.genai import types
 
-from app.agents.gemini_client import GEMINI_MODEL_NAME, client, strip_json_fences
+from app.agents.gemini_client import GEMINI_MODEL_NAME, generate_content, strip_json_fences
 from app.models.lesson import Lesson, VideoRecommendation
 from app.models.video_note import TimestampNote, VideoNote
 
@@ -44,7 +44,7 @@ async def discover_videos(lesson: Lesson, max_results: int = 3) -> list[VideoRec
     """The model's own JSON output can name a plausible-but-hallucinated video
     ID even with grounding enabled — only `grounding_metadata.grounding_chunks`
     (the actual search citations) are trustworthy for the URL itself."""
-    response = await client.aio.models.generate_content(
+    response = await generate_content(
         model=GEMINI_MODEL_NAME,
         contents=(
             f"Find {max_results} high-quality YouTube videos that teach: "
@@ -81,7 +81,7 @@ async def discover_videos(lesson: Lesson, max_results: int = 3) -> list[VideoRec
 
 
 async def ask_about_video(video_url: str, lesson_title: str, question: str) -> str:
-    response = await client.aio.models.generate_content(
+    response = await generate_content(
         model=GEMINI_MODEL_NAME,
         contents=types.Content(
             parts=[
@@ -101,7 +101,7 @@ async def ask_about_video(video_url: str, lesson_title: str, question: str) -> s
 
 
 async def generate_video_notes(lesson_id: str, video_url: str, lesson_title: str) -> VideoNote:
-    response = await client.aio.models.generate_content(
+    response = await generate_content(
         model=GEMINI_MODEL_NAME,
         contents=types.Content(
             parts=[

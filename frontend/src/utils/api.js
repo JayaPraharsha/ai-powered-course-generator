@@ -46,8 +46,15 @@ export const getMe = () => request('/auth/me')
 export const exportMyData = () => request('/auth/me/export')
 
 // Courses
+// Course generation runs on a persistent job queue (can take a minute+) —
+// this only enqueues the request and returns the job immediately; poll
+// getGenerationJob(job._id) for status instead of waiting on this call.
 export const generateCourse = (payload) =>
   request('/courses/generate', { method: 'POST', body: JSON.stringify(payload) })
+
+export const getGenerationJob = (jobId) => request(`/courses/jobs/${jobId}`)
+
+export const listGenerationJobs = () => request('/courses/jobs')
 
 export const listCourses = () => request('/courses')
 

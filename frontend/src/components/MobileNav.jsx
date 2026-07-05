@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, LayoutDashboard, PlusCircle, X } from 'lucide-react'
+import { BookOpen, LayoutDashboard, ListChecks, PlusCircle, X } from 'lucide-react'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/courses', label: 'Courses', icon: BookOpen },
   { to: '/create', label: 'New Course', icon: PlusCircle },
+  { to: '/jobs', label: 'Generation Jobs', icon: ListChecks },
 ]
 
 function MobileNav({ open, onClose }) {
