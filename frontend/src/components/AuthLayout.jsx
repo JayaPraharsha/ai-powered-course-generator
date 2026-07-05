@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { ListChecks, Sparkles, TrendingUp, Video } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '../utils/motion'
 import StudyingIllustration from './illustrations/StudyingIllustration'
+import Logo from './Logo'
 import PageBackground from './PageBackground'
 
 const DEFAULT_FEATURES = [
@@ -27,14 +28,8 @@ const DEFAULT_FEATURES = [
   },
 ]
 
-function BrandMark({ className = 'h-10 w-10 text-base' }) {
-  return (
-    <span
-      className={`flex items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 font-bold text-white shadow-glow ${className}`}
-    >
-      L
-    </span>
-  )
+function BrandMark({ className = 'h-10 w-10' }) {
+  return <Logo className={className} />
 }
 
 function AuthLayout({ heading, subheading, children, features = DEFAULT_FEATURES }) {

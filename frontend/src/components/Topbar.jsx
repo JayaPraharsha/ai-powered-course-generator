@@ -5,6 +5,7 @@ import { Coins, Menu, MessageCircle, Star } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import AccountMenu from './AccountMenu'
+import Logo from './Logo'
 import MobileNav from './MobileNav'
 import streakFlameAnimation from '../assets/lottie/streak-flame.json'
 
@@ -26,9 +27,7 @@ function Topbar() {
             <Menu className="h-6 w-6" />
           </button>
           <Link to="/" className="flex items-center gap-2 sm:hidden">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white">
-              L
-            </span>
+            <Logo className="h-7 w-7" />
             <span className="font-display text-sm font-semibold text-slate-800">Learnify AI</span>
           </Link>
         </div>
