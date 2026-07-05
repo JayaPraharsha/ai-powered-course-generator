@@ -1,5 +1,6 @@
 *.pdf
 
+
 # Environment / secrets
 .env
 .env.*
@@ -14,5 +15,7 @@ prompts_for_claude/
 
 # Mongo dump/export artifacts — contain real user data, never commit
 backups/
+scripts/
 *.archive
 *.txt
+plan.md
