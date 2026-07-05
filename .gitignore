@@ -19,3 +19,5 @@ scripts/
 *.archive
 *.txt
 plan.md
+REQUIREMENTS.md
+DEPLOYMENT.md
