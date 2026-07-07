@@ -25,8 +25,8 @@ from app.logging_config import configure_logging
 configure_logging()
 logger = logging.getLogger("app")
 
-from app.routes import auth, chat, courses, dashboard, health, lessons  # noqa: E402
-from app.services import course_service, job_service, job_worker  # noqa: E402
+from app.routes import auth, chat, courses, dashboard, diagrams, health, lessons  # noqa: E402
+from app.services import course_service, diagram_job_service, diagram_worker, job_service, job_worker  # noqa: E402
 
 
 @asynccontextmanager
@@ -36,8 +36,11 @@ async def lifespan(app: FastAPI):
     await course_service.ensure_platform_template_exists()
     await job_service.requeue_stale_processing_jobs()
     job_worker.start_workers(settings.job_worker_concurrency)
+    await diagram_job_service.requeue_stale_processing_jobs()
+    diagram_worker.start_workers(settings.job_worker_concurrency)
     yield
     await job_worker.stop_workers()
+    await diagram_worker.stop_workers()
     close_mongo_connection()
 
 
@@ -102,6 +105,7 @@ app.include_router(courses.router, prefix="/api")
 app.include_router(lessons.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
+app.include_router(diagrams.router, prefix="/api")
 
 # Starlette always places the generic-Exception handler inside ServerErrorMiddleware,
 # which it puts outermost no matter when add_middleware(CORSMiddleware) is called —

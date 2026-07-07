@@ -18,6 +18,10 @@ const Course = lazy(() => import('./pages/Course'))
 const Lesson = lazy(() => import('./pages/Lesson'))
 const VideoDetail = lazy(() => import('./pages/VideoDetail'))
 const GenerationJobs = lazy(() => import('./pages/GenerationJobs'))
+const KnowledgeCanvas = lazy(() => import('./pages/KnowledgeCanvas'))
+const GenerateDiagram = lazy(() => import('./pages/GenerateDiagram'))
+const DiagramList = lazy(() => import('./pages/DiagramList'))
+const DiagramEditor = lazy(() => import('./pages/DiagramEditor'))
 
 function RouteFallback() {
   return (
@@ -46,6 +50,10 @@ function App() {
               path="/course/:courseId/lesson/:lessonId/video/:videoIndex"
               element={<VideoDetail />}
             />
+            <Route path="/canvas" element={<KnowledgeCanvas />} />
+            <Route path="/canvas/:diagramType" element={<GenerateDiagram />} />
+            <Route path="/diagrams" element={<DiagramList />} />
+            <Route path="/diagram/:diagramId" element={<DiagramEditor />} />
           </Route>
         </Route>
       </Routes>

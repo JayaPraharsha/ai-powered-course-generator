@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Flame, Sparkles, Star, TrendingUp } from 'lucide-react'
 import { useSignUp } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import AuthLayout from '../components/AuthLayout'
 import AuthTextField from '../components/AuthTextField'
 import ErrorMessage from '../components/ErrorMessage'
@@ -39,6 +40,7 @@ function splitName(fullName) {
 
 function Signup() {
   const { signUp, setActive, isLoaded } = useSignUp()
+  const { status } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState('form') // form | verify
   const [pending, setPending] = useState(null) // null | 'google' | 'password' | 'verify'
@@ -47,6 +49,10 @@ function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
+
+  // A Clerk session already exists in this browser — re-showing the signup
+  // form would throw "Session already exists" on submit, so bounce onward.
+  if (status === 'authed') return <Navigate to="/" replace />
 
   async function handleGoogle() {
     if (!isLoaded || pending) return

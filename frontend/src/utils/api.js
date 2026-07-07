@@ -28,7 +28,12 @@ async function request(path, options = {}) {
         : body?.detail
           ? JSON.stringify(body.detail)
           : `Request failed: ${res.status} ${res.statusText}`
-    throw new Error(message)
+    const error = new Error(message)
+    // Attaches the raw error body (e.g. guardrail rejections' reason/suggestion/
+    // suggested_type) for callers that need more than the flattened message —
+    // existing catch blocks that only read err.message are unaffected.
+    error.body = body
+    throw error
   }
   return res.status === 204 ? null : res.json()
 }
@@ -104,6 +109,33 @@ export const setLessonCompleted = (lessonId, completed) =>
   request(`/lessons/${lessonId}/complete`, {
     method: 'POST',
     body: JSON.stringify({ completed }),
+  })
+
+// Knowledge Canvas — diagram generation runs on the same style of persistent
+// job queue as course generation; enqueue-then-poll instead of waiting inline.
+export const generateDiagram = (payload) =>
+  request('/diagrams/generate', { method: 'POST', body: JSON.stringify(payload) })
+
+export const getDiagramJob = (jobId) => request(`/diagrams/jobs/${jobId}`)
+
+export const listDiagramJobs = () => request('/diagrams/jobs')
+
+export const listDiagrams = () => request('/diagrams')
+
+export const getDiagram = (diagramId) => request(`/diagrams/${diagramId}`)
+
+export const updateDiagram = (diagramId, payload) =>
+  request(`/diagrams/${diagramId}`, { method: 'PATCH', body: JSON.stringify(payload) })
+
+export const deleteDiagram = (diagramId) => request(`/diagrams/${diagramId}`, { method: 'DELETE' })
+
+export const duplicateDiagram = (diagramId) =>
+  request(`/diagrams/${diagramId}/duplicate`, { method: 'POST' })
+
+export const aiEditDiagram = (diagramId, instruction) =>
+  request(`/diagrams/${diagramId}/ai-edit`, {
+    method: 'POST',
+    body: JSON.stringify({ instruction }),
   })
 
 export { API_BASE_URL, request }

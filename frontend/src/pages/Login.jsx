@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useSignIn } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import AuthLayout from '../components/AuthLayout'
 import AuthTextField from '../components/AuthTextField'
 import ErrorMessage from '../components/ErrorMessage'
@@ -8,6 +9,7 @@ import GoogleAuthButton from '../components/GoogleAuthButton'
 
 function Login() {
   const { signIn, setActive, isLoaded } = useSignIn()
+  const { status } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [pending, setPending] = useState(null) // null | 'google' | 'password'
@@ -16,6 +18,10 @@ function Login() {
   const [password, setPassword] = useState('')
 
   const redirectTo = location.state?.from?.pathname || '/'
+
+  // A Clerk session already exists in this browser — re-showing the login
+  // form would throw "Session already exists" on submit, so bounce onward.
+  if (status === 'authed') return <Navigate to={redirectTo} replace />
 
   async function handleGoogle() {
     if (!isLoaded || pending) return

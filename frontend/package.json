@@ -12,6 +12,8 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.61.3",
     "@tailwindcss/vite": "^4.3.2",
+    "@xyflow/react": "^12.11.2",
+    "elkjs": "^0.11.1",
     "framer-motion": "^12.42.2",
     "highlight.js": "^11.11.1",
     "lottie-react": "^2.4.1",
@@ -23,7 +25,8 @@
     "react-router-dom": "^7.18.1",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.2",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
