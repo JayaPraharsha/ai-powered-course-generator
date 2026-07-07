@@ -1,39 +1,97 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSignIn } from '@clerk/clerk-react'
 import AuthLayout from '../components/AuthLayout'
+import AuthTextField from '../components/AuthTextField'
 import ErrorMessage from '../components/ErrorMessage'
 import GoogleAuthButton from '../components/GoogleAuthButton'
 
 function Login() {
-  const { signIn, isLoaded } = useSignIn()
+  const { signIn, setActive, isLoaded } = useSignIn()
   const location = useLocation()
-  const [status, setStatus] = useState('idle') // idle | loading | error
+  const navigate = useNavigate()
+  const [pending, setPending] = useState(null) // null | 'google' | 'password'
   const [error, setError] = useState(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const redirectTo = location.state?.from?.pathname || '/'
 
   async function handleGoogle() {
-    if (!isLoaded || status === 'loading') return
-    setStatus('loading')
+    if (!isLoaded || pending) return
+    setPending('google')
     setError(null)
     try {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/sso-callback',
-        redirectUrlComplete: location.state?.from?.pathname || '/',
+        redirectUrlComplete: redirectTo,
       })
     } catch (err) {
       setError(err.errors?.[0]?.message || 'Something went wrong. Please try again.')
-      setStatus('error')
+      setPending(null)
+    }
+  }
+
+  async function handlePasswordLogin(event) {
+    event.preventDefault()
+    if (!isLoaded || pending) return
+    setPending('password')
+    setError(null)
+    try {
+      const result = await signIn.create({ identifier: email, password })
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId })
+        navigate(redirectTo, { replace: true })
+      } else {
+        setError('Additional verification is required for this account.')
+        setPending(null)
+      }
+    } catch (err) {
+      setError(err.errors?.[0]?.message || 'Incorrect email or password.')
+      setPending(null)
     }
   }
 
   return (
     <AuthLayout heading="Welcome back" subheading="Log in to see your courses.">
       <div className="mt-8 flex flex-col gap-3">
-        <GoogleAuthButton onClick={handleGoogle} loading={status === 'loading'} label="Log in with Google" />
+        <GoogleAuthButton onClick={handleGoogle} loading={pending === 'google'} label="Log in with Google" />
       </div>
 
-      {status === 'error' && (
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-200" />
+        <span className="text-xs font-medium tracking-wide text-slate-400 uppercase">or</span>
+        <div className="h-px flex-1 bg-slate-200" />
+      </div>
+
+      <form onSubmit={handlePasswordLogin} className="flex flex-col gap-4">
+        <AuthTextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          autoComplete="email"
+          required
+        />
+        <AuthTextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          autoComplete="current-password"
+          required
+        />
+        <button
+          type="submit"
+          disabled={pending !== null}
+          className="mt-1 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {pending === 'password' ? 'Logging in…' : 'Log in'}
+        </button>
+      </form>
+
+      {error && (
         <div className="mt-4">
           <ErrorMessage message={error} />
         </div>

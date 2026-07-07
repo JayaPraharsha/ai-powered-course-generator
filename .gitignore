@@ -14,6 +14,7 @@ __pycache__/
 prompts_for_claude/
 old_prompts/
 prompt_*/
+
 # Mongo dump/export artifacts — contain real user data, never commit
 backups/
 scripts/
@@ -22,3 +23,4 @@ scripts/
 plan.md
 REQUIREMENTS.md
 DEPLOYMENT.md
+CLAUDE.md
