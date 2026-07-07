@@ -92,6 +92,12 @@ class DiagramValidationSchema(BaseModel):
     )
 
 
+class RefinedPromptSchema(BaseModel):
+    refined_prompt: str = Field(
+        description="Expanded, descriptive version of the user's topic tailored for the diagram type"
+    )
+
+
 class GraphNodeSchema(BaseModel):
     id: str = Field(description="Short stable identifier, e.g. 'n1', unique within the graph")
     label: str

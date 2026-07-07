@@ -1,7 +1,7 @@
 import logging
 import time
 
-from app.agents import graph_agent
+from app.agents import graph_agent, prompt_refiner
 from app.agents.diagram_types import diagram_type_name
 from app.agents.graph_validator import clean_graph
 from app.agents.retry import with_retries
@@ -17,7 +17,11 @@ async def generate_diagram(request: DiagramGenerateRequest, owner_id: str) -> Kn
         "Diagram generation started: topic=%r type=%r", request.topic, request.diagram_type
     )
 
-    graph = await with_retries(graph_agent.generate_graph, request)
+    refined = await with_retries(prompt_refiner.refine_prompt, request)
+    logger.info("Diagram prompt refined: %r -> %r", request.topic, refined.refined_prompt)
+    enriched_request = request.model_copy(update={"topic": refined.refined_prompt, "detail": None})
+
+    graph = await with_retries(graph_agent.generate_graph, enriched_request)
     nodes, edges = clean_graph(graph)
     logger.info(
         "Diagram graph ready: %r (%d nodes, %d edges) after %.1fs",

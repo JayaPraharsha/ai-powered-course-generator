@@ -5,38 +5,10 @@ client's job (React Flow + ELK.js layout)."""
 
 from crewai import Agent, Crew, Task
 
-from app.agents.diagram_types import diagram_type_name
+from app.agents.diagram_types import DIAGRAM_TYPE_GUIDANCE, diagram_type_name
 from app.agents.llm import get_llm
 from app.agents.schemas import DiagramGraphSchema
 from app.models.diagram import DiagramEdge, DiagramGenerateRequest, DiagramNode
-
-_TYPE_GUIDANCE: dict[str, str] = {
-    "mindmap": (
-        "Structure: one central node for the core topic, with branches radiating "
-        "outward to major sub-themes, each of which may branch further into details. "
-        "Use `group` to tag which major branch a node belongs to."
-    ),
-    "flowchart": (
-        "Structure: a directed sequence of steps/decisions from start to finish. "
-        "Edge labels should describe the transition or decision outcome (e.g. 'yes', "
-        "'on success'). Use `group` to tag which stage/phase a step belongs to."
-    ),
-    "roadmap": (
-        "Structure: a progression of stages or milestones over time, ordered from "
-        "earliest to latest. Use `group` to tag which phase (e.g. 'Foundations', "
-        "'Advanced') a milestone belongs to."
-    ),
-    "concept_map": (
-        "Structure: concepts connected by labeled relationships describing how they "
-        "relate (e.g. 'depends on', 'is a type of'). Not strictly hierarchical — "
-        "concepts can cross-link. Use `group` to cluster related concepts."
-    ),
-    "process_diagram": (
-        "Structure: the ordered stages of a real-world process or workflow, with "
-        "edges showing the flow between stages. Use `group` to tag which department "
-        "or system owns each stage."
-    ),
-}
 
 
 def build_graph_agent() -> Agent:
@@ -57,7 +29,7 @@ def build_graph_agent() -> Agent:
 
 def _build_generate_task(agent: Agent, request: DiagramGenerateRequest) -> Task:
     type_name = diagram_type_name(request.diagram_type)
-    guidance = _TYPE_GUIDANCE.get(request.diagram_type, "")
+    guidance = DIAGRAM_TYPE_GUIDANCE.get(request.diagram_type, "")
     detail_line = f"\nAdditional detail: {request.detail}" if request.detail else ""
     return Task(
         description=(
