@@ -1,5 +1,6 @@
 *.pdf
 
+.claudeignore 
 
 # Environment / secrets
 .env
@@ -24,3 +25,5 @@ plan.md
 REQUIREMENTS.md
 DEPLOYMENT.md
 CLAUDE.md
+
+repomix-output.xml
