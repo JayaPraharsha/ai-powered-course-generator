@@ -1,21 +1,20 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-const TOKEN_KEY = 'ttl_token'
 
-let authToken = localStorage.getItem(TOKEN_KEY)
+// Clerk session tokens expire in ~60s, so we can't cache one — this holds a
+// `getToken` function (from Clerk's useAuth()) that AuthContext wires up on
+// sign-in, and every request calls it fresh. Clerk's SDK internally caches
+// and silently refreshes the underlying token, so calling it per-request is
+// cheap.
+let tokenGetter = null
 
-export function setAuthToken(token) {
-  authToken = token
-  if (token) localStorage.setItem(TOKEN_KEY, token)
-  else localStorage.removeItem(TOKEN_KEY)
-}
-
-export function getAuthToken() {
-  return authToken
+export function setTokenGetter(fn) {
+  tokenGetter = fn
 }
 
 async function request(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...options.headers }
-  if (authToken) headers.Authorization = `Bearer ${authToken}`
+  const token = tokenGetter ? await tokenGetter() : null
+  if (token) headers.Authorization = `Bearer ${token}`
 
   const res = await fetch(`${API_BASE_URL}/api${path}`, {
     ...options,
@@ -34,13 +33,8 @@ async function request(path, options = {}) {
   return res.status === 204 ? null : res.json()
 }
 
-// Auth
-export const signup = (payload) =>
-  request('/auth/signup', { method: 'POST', body: JSON.stringify(payload) })
-
-export const login = (payload) =>
-  request('/auth/login', { method: 'POST', body: JSON.stringify(payload) })
-
+// Auth — sign-in/sign-up itself is handled by Clerk; this just resolves the
+// authenticated Clerk session to (or creates) our own user profile.
 export const getMe = () => request('/auth/me')
 
 export const exportMyData = () => request('/auth/me/export')

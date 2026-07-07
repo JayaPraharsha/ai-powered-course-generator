@@ -110,9 +110,9 @@ function SidebarProfile({ collapsed }) {
   const xpToNext = user.xp_to_next ?? 500
   const progressPct = xp + xpToNext > 0 ? Math.min(100, Math.round((xp / (xp + xpToNext)) * 100)) : 0
 
-  function handleLogout() {
+  async function handleLogout() {
     setMenuOpen(false)
-    logout()
+    await logout()
     navigate('/login')
   }
 

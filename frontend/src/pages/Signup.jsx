@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Flame, Sparkles, Star, TrendingUp } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useSignUp } from '@clerk/clerk-react'
 import AuthLayout from '../components/AuthLayout'
 import ErrorMessage from '../components/ErrorMessage'
+import GoogleAuthButton from '../components/GoogleAuthButton'
 
 const SIGNUP_FEATURES = [
   {
@@ -29,30 +30,22 @@ const SIGNUP_FEATURES = [
 ]
 
 function Signup() {
-  const { signup } = useAuth()
-  const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const { signUp, isLoaded } = useSignUp()
   const [status, setStatus] = useState('idle') // idle | loading | error
   const [error, setError] = useState(null)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    if (status === 'loading') return
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      setStatus('error')
-      return
-    }
+  async function handleGoogle() {
+    if (!isLoaded || status === 'loading') return
     setStatus('loading')
     setError(null)
     try {
-      await signup(name, email, password)
-      navigate('/', { replace: true })
+      await signUp.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: '/',
+      })
     } catch (err) {
-      setError(err.message)
+      setError(err.errors?.[0]?.message || 'Something went wrong. Please try again.')
       setStatus('error')
     }
   }
@@ -63,53 +56,9 @@ function Signup() {
       subheading="Your generated courses are private to you."
       features={SIGNUP_FEATURES}
     >
-      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-3">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          required
-          disabled={status === 'loading'}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
-        />
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          disabled={status === 'loading'}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password (min. 8 characters)"
-          minLength={8}
-          required
-          disabled={status === 'loading'}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
-        />
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirm password"
-          minLength={8}
-          required
-          disabled={status === 'loading'}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
-        />
-        <button
-          type="submit"
-          disabled={status === 'loading'}
-          className="mt-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {status === 'loading' ? 'Creating account…' : 'Sign up'}
-        </button>
-      </form>
+      <div className="mt-8 flex flex-col gap-3">
+        <GoogleAuthButton onClick={handleGoogle} loading={status === 'loading'} label="Sign up with Google" />
+      </div>
 
       {status === 'error' && (
         <div className="mt-4">
@@ -117,7 +66,11 @@ function Signup() {
         </div>
       )}
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-xs text-slate-400">
+        By continuing, you agree to sign in securely with Google via Clerk.
+      </p>
+
+      <p className="mt-4 text-center text-sm text-slate-500">
         Already have an account?{' '}
         <Link to="/login" className="font-medium text-primary-600 hover:underline">
           Log in
