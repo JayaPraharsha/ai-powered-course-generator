@@ -1,6 +1,14 @@
+import asyncio
 import logging
+import sys
 import time
 from contextlib import asynccontextmanager
+
+# motor/pymongo issue spurious _OperationCancelled errors on Windows under
+# asyncio's default ProactorEventLoop (mongodb/mongo-python-driver#1219) — must
+# be set before uvicorn creates the event loop, so this runs at import time.
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError

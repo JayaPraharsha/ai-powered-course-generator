@@ -1,0 +1,18 @@
+The **"Ask about this video"** feature is currently displaying the AI's response as raw Markdown instead of rendering it properly. I have attached a screenshot showing the issue.
+
+Please investigate and fix it.
+
+Requirements:
+- Render Markdown correctly instead of displaying the raw Markdown syntax.
+- Support common Markdown elements, including:
+  - Headings
+  - Bold and italic text
+  - Bullet and numbered lists
+  - Tables
+  - Code blocks
+  - Inline code
+  - Blockquotes
+  - Links
+- Ensure the rendered output matches the application's design system and remains responsive.
+- Preserve proper spacing, typography, and syntax highlighting (where applicable).
+- Verify that all AI responses in the "Ask about this video" feature are rendered consistently and that no raw Markdown is visible to the user.

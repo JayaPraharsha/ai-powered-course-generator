@@ -12,6 +12,7 @@ __pycache__/
 *.log
 .claude/
 prompts_for_claude/
+old_prompts/
 
 # Mongo dump/export artifacts — contain real user data, never commit
 backups/
